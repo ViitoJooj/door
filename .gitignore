@@ -1,0 +1,23 @@
+# segredos
+.env
+*/.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+
+# Go
+*.exe
+temp/
+*/temp
+tmp/
+*/tmp/
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log

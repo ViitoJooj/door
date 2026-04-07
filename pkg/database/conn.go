@@ -8,11 +8,16 @@ import (
 
 var DB *sql.DB
 
-func Conn() error {
+func Conn() {
 	var err error
+
 	DB, err = sql.Open("sqlite3", "./database.db")
 	if err != nil {
-		return err
+		panic(err)
 	}
-	return nil
+
+	err = DB.Ping()
+	if err != nil {
+		panic(err)
+	}
 }

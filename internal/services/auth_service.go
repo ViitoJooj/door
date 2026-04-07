@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-	"strings"
 
 	"github.com/ViitoJooj/door/internal/domain"
 	"github.com/ViitoJooj/door/internal/repository"
@@ -26,9 +25,9 @@ func NewAuthService(userRepo repository.UserRepository) *AuthService {
 func (s *AuthService) Register(user *domain.User) (*domain.User, error) {
 	existing, err := s.userRepo.FindUserByEmail(user.Email)
 	if err != nil && err != sql.ErrNoRows {
-      log.Println(err)
-      return nil, errors.New("internal error")
-  	}
+		log.Println(err)
+		return nil, errors.New("internal error")
+	}
 	if existing != nil {
 		log.Println("User already exists")
 		return nil, errors.New("invalid credentials")
@@ -59,37 +58,54 @@ func (s *AuthService) Register(user *domain.User) (*domain.User, error) {
 	return newUser, nil
 }
 
-func (s *AuthService) Login(identifier string, password string) (*domain.User, string, error) {
-	var user *domain.User
-	var err error
+func (s *AuthService) Login(username string, email string, password string) (*domain.User, string, error) {
+	if len(username) > 1 {
+		user, err := s.userRepo.FindUserByUsername(username)
+		if err != nil {
+			log.Println(err)
+			return nil, "", errors.New("internal error")
+		}
+		if user == nil {
+			log.Println("User not found")
+			return nil, "", errors.New("invalid credentials")
+		}
 
-	if strings.Contains(identifier, "@") {
-		user, err = s.userRepo.FindUserByEmail(identifier)
+		if !cryptography.CheckPasswordHash(password, user.Password) {
+			log.Println("Invalid password.")
+			return nil, "", errors.New("invalid credentials")
+		}
+
+		token, err := jwtTokens.GenerateToken(user.ID)
+		if err != nil {
+			log.Println(err)
+			return nil, "", errors.New("internal error")
+		}
+
+		return user, token, nil
 	} else {
-		user, err = s.userRepo.FindUserByUsername(identifier)
-	}
+		user, err := s.userRepo.FindUserByEmail(email)
+		if err != nil {
+			log.Println(err)
+			return nil, "", errors.New("internal error")
+		}
+		if user == nil {
+			log.Println("User not found")
+			return nil, "", errors.New("invalid credentials")
+		}
 
-	if err != nil && err != sql.ErrNoRows {
-		log.Println(err)
-		return nil, "", errors.New("internal error")
-	}
-	if user == nil {
-		log.Println("User not found")
-		return nil, "", errors.New("invalid credentials")
-	}
+		if !cryptography.CheckPasswordHash(password, user.Password) {
+			log.Println("Invalid password.")
+			return nil, "", errors.New("invalid credentials")
+		}
 
-	if !cryptography.CheckPasswordHash(password, user.Password) {
-		log.Println("Invalid password.")
-		return nil, "", errors.New("invalid credentials")
-	}
+		token, err := jwtTokens.GenerateToken(user.ID)
+		if err != nil {
+			log.Println(err)
+			return nil, "", errors.New("internal error")
+		}
 
-	token, err := jwtTokens.GenerateToken(user.ID)
-	if err != nil {
-		log.Println(err)
-		return nil, "", errors.New("internal error")
+		return user, token, nil
 	}
-
-	return user, token, nil
 }
 
 func (s *AuthService) Token(tokenString string) (*domain.User, error) {

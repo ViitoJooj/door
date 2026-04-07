@@ -6,3 +6,16 @@ POST http://localhost:7171/api/v1/auth/register
     "email": "admin@door.com",
     "password": "1234567890"
 }
+
+# Login
+POST http://localhost:7171/api/v1/auth/login
+
+{
+    "username": "doorAdmin",
+    //"email": "admin@door.com",
+    "password": "1234567890"
+}
+
+# Token
+GET http://localhost:7171/api/v1/auth/token
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzU1NzM0OTUsInVzZXJfaWQiOjF9.G9Sqs4aoGVgew39s134mLf_CS49Fk4GzGAv59NBH0ds

@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"net/http"
+	"encoding/json"
 
 	"github.com/ViitoJooj/door/internal/domain"
 	"github.com/ViitoJooj/door/internal/http/dtos"
 	"github.com/ViitoJooj/door/internal/services"
-	"github.com/gin-gonic/gin"
+	"github.com/valyala/fasthttp"
 )
 
 type AuthHandler struct {
@@ -19,13 +19,13 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	}
 }
 
-func (c *AuthHandler) Register(ctx *gin.Context) {
+func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 	var input dtos.RegisterInput
 
-	if err := ctx.ShouldBindJSON(&input); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if err := json.Unmarshal(ctx.PostBody(), &input); err != nil {
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody([]byte(`{"error":"invalid json"}`))
 		return
 	}
 
@@ -35,11 +35,11 @@ func (c *AuthHandler) Register(ctx *gin.Context) {
 		Password: input.Password,
 	}
 
-	createdUser, err := c.authService.Register(user)
+	createdUser, err := h.authService.Register(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody([]byte(`{"error":"` + err.Error() + `"}`))
 		return
 	}
 
@@ -54,24 +54,31 @@ func (c *AuthHandler) Register(ctx *gin.Context) {
 		},
 	}
 
-	ctx.JSON(http.StatusCreated, output)
+	res, _ := json.Marshal(output)
+
+	ctx.SetStatusCode(fasthttp.StatusCreated)
+	ctx.SetContentType("application/json")
+	ctx.SetBody(res)
 }
 
-func (c *AuthHandler) Login(ctx *gin.Context) {
+func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	var input dtos.LoginInput
 
-	if err := ctx.ShouldBindJSON(&input); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+	if err := json.Unmarshal(ctx.PostBody(), &input); err != nil {
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody([]byte(`{"error":"invalid json"}`))
 		return
 	}
 
 	user, token, err := c.authService.Login(input.Username, input.Email, input.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		res, _ := json.Marshal(map[string]string{
 			"error": err.Error(),
 		})
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
@@ -88,36 +95,59 @@ func (c *AuthHandler) Login(ctx *gin.Context) {
 		Token: token,
 	}
 
-	ctx.JSON(http.StatusOK, output)
+	res, _ := json.Marshal(output)
+
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetContentType("application/json")
+	ctx.SetBody(res)
 }
 
-func (c *AuthHandler) Token(ctx *gin.Context) {
-	tokenString, err := ctx.Cookie("token")
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Token not found",
-		})
+func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
+	tokenString := string(ctx.Request.Header.Cookie("token"))
+
+	if tokenString == "" {
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetContentType("application/json")
+		ctx.SetBody([]byte(`{"error":"Token not found"}`))
 		return
 	}
 
-	_, err = c.authService.Token(tokenString)
+	_, err := c.authService.Token(tokenString)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{
+		res, _ := json.Marshal(map[string]string{
 			"error": err.Error(),
 		})
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	res, _ := json.Marshal(map[string]any{
 		"success": true,
 		"message": "Token is valid",
 	})
+
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetContentType("application/json")
+	ctx.SetBody(res)
 }
 
-func (c *AuthHandler) Logout(ctx *gin.Context) {
-	ctx.SetCookie("token", "", -1, "/", "localhost", false, true)
-	ctx.JSON(http.StatusOK, gin.H{
+func (c *AuthHandler) Logout(ctx *fasthttp.RequestCtx) {
+	var cookie fasthttp.Cookie
+	cookie.SetKey("token")
+	cookie.SetValue("")
+	cookie.SetExpire(fasthttp.CookieExpireDelete)
+	cookie.SetPath("/")
+
+	ctx.Response.Header.SetCookie(&cookie)
+
+	res, _ := json.Marshal(map[string]any{
 		"success": true,
 		"message": "Logout successful",
 	})
+
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetContentType("application/json")
+	ctx.SetBody(res)
 }

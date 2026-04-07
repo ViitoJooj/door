@@ -83,7 +83,7 @@ func (r *SQLiteUserRepository) FindUserByEmail(email string) (*domain.User, erro
 	return user, nil
 }
 
-func (r *SQLiteUserRepository) FindUserByID(id int) (*domain.User, error) {
+func (r *SQLiteUserRepository) FindUserByID(id float64) (*domain.User, error) {
 	row := r.db.QueryRow(`
 		SELECT id, username, email, password, updated_at, created_at
 		FROM users

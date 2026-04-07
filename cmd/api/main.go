@@ -7,6 +7,7 @@ import (
 	"github.com/ViitoJooj/door/internal/services"
 	"github.com/ViitoJooj/door/pkg/database"
 	"github.com/ViitoJooj/door/pkg/dotenv"
+	"github.com/valyala/fasthttp"
 )
 
 func main() {
@@ -18,5 +19,5 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 
 	r := httpx.SetupRouter(authHandler)
-	r.Run(":7171")
+	fasthttp.ListenAndServe(":7171", r)
 }

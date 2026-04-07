@@ -16,10 +16,10 @@ func NewSQLiteUserRepository(db *sql.DB) UserRepository {
 
 type UserRepository interface {
 	CreateUser(user *domain.User) error
-	FindUserByID(id int) (*domain.User, error)
+	FindUserByID(id float64) (*domain.User, error)
 	FindUserByEmail(email string) (*domain.User, error)
 	FindUserByUsername(username string) (*domain.User, error)
 	ListUsers() ([]*domain.User, error)
 	UpdateUser(user *domain.User) error
-	DeleteUserByID(id int) error
+	DeleteUserByID(id float64) error
 }

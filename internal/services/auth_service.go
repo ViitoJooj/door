@@ -120,7 +120,7 @@ func (s *AuthService) Token(tokenString string) (*domain.User, error) {
 		log.Println("invalid token claims")
 		return nil, errors.New("invalid token")
 	}
-	userID, ok := claims["user_id"].(int)
+	userID, ok := claims["user_id"].(float64)
 	if !ok {
 		log.Println("invalid token claims")
 		return nil, errors.New("invalid token")

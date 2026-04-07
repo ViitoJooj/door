@@ -1,33 +1,18 @@
 package http
 
 import (
-	"time"
-
 	"github.com/ViitoJooj/door/internal/http/handler"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/fasthttp/router"
+	"github.com/valyala/fasthttp"
 )
 
-func SetupRouter(userController *handler.AuthHandler) *gin.Engine {
-	r := gin.Default()
+func SetupRouter(userController *handler.AuthHandler) fasthttp.RequestHandler {
+	r := router.New()
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	r.POST("/api/v1/auth/register", userController.Register)
+	r.POST("/api/v1/auth/login", userController.Login)
+	r.GET("/api/v1/auth/token", userController.Token)
+	r.POST("/api/v1/auth/logout", userController.Logout)
 
-	users := r.Group("/api/v1/auth")
-	{
-		users.POST("/register", userController.Register)
-		users.POST("/login", userController.Login)
-		users.GET("/token", userController.Token)
-		users.POST("/logout", userController.Logout)
-
-	}
-
-	return r
+	return r.Handler
 }

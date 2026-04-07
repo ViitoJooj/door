@@ -1,0 +1,8 @@
+# Register
+POST http://localhost:7171/api/v1/auth/register
+
+{
+    "username": "doorAdmin",
+    "email": "admin@door.com",
+    "password": "1234567890"
+}

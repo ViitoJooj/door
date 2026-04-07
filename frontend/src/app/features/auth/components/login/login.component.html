@@ -1,0 +1,119 @@
+<div class="auth-layout">
+
+  <div class="brand-side">
+    <span class="brand-logo">door.</span>
+    <div class="brand-content">
+      <p class="brand-tagline">
+        Gateway de proteção<br>
+        <span class="brand-tagline--muted">para suas APIs.</span>
+      </p>
+    </div>
+    <span class="brand-footer">self-hosted &amp; open source</span>
+  </div>
+
+  <div class="form-side">
+    <div class="form-container">
+
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.tab--active]="activeTab() === 'login'"
+          (click)="setTab('login')"
+          type="button"
+        >
+          Entrar
+        </button>
+        <button
+          class="tab"
+          [class.tab--active]="activeTab() === 'register'"
+          (click)="setTab('register')"
+          type="button"
+        >
+          Criar conta
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <p class="error-message">{{ errorMessage() }}</p>
+      }
+
+      @if (activeTab() === 'login') {
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form">
+          <div class="field">
+            <label class="field__label">Username ou e-mail</label>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="identifier"
+              placeholder="seu@email.com"
+            />
+          </div>
+
+          <div class="field">
+            <label class="field__label">Senha</label>
+            <input
+              class="field__input"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button class="btn-primary" type="submit" [disabled]="loading()">
+            {{ loading() ? 'Entrando...' : 'Entrar' }}
+          </button>
+
+          <p class="form-link">
+            Não tem uma conta?
+            <button type="button" class="link" (click)="setTab('register')">Criar agora</button>
+          </p>
+        </form>
+      }
+
+      @if (activeTab() === 'register') {
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="form">
+          <div class="field">
+            <label class="field__label">Nome de usuário</label>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="username"
+              placeholder="seunome"
+            />
+          </div>
+
+          <div class="field">
+            <label class="field__label">E-mail</label>
+            <input
+              class="field__input"
+              type="email"
+              formControlName="email"
+              placeholder="seu@email.com"
+            />
+          </div>
+
+          <div class="field">
+            <label class="field__label">Senha</label>
+            <input
+              class="field__input"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button class="btn-primary" type="submit" [disabled]="loading()">
+            {{ loading() ? 'Criando...' : 'Criar conta' }}
+          </button>
+
+          <p class="form-link">
+            Já tem uma conta?
+            <button type="button" class="link" (click)="setTab('login')">Entrar</button>
+          </p>
+        </form>
+      }
+
+    </div>
+  </div>
+
+</div>

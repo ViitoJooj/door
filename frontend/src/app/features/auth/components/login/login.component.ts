@@ -47,7 +47,12 @@ export class LoginComponent {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.login(this.loginForm.value).subscribe({
+    const { identifier, password } = this.loginForm.value;
+    const payload = identifier.includes('@')
+      ? { email: identifier, password }
+      : { username: identifier, password };
+
+    this.authService.login(payload).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigate(['/dashboard']);

@@ -1,4 +1,4 @@
-# segredos
+# Segredos
 .env
 */.env
 
@@ -21,3 +21,7 @@ tmp/
 
 # Logs
 *.log
+
+# Sqlite
+*.db
+*/*.db

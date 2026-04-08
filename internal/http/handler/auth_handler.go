@@ -6,6 +6,7 @@ import (
 	"github.com/ViitoJooj/door/internal/domain"
 	"github.com/ViitoJooj/door/internal/http/dtos"
 	"github.com/ViitoJooj/door/internal/services"
+	"github.com/ViitoJooj/door/pkg/ip"
 	"github.com/valyala/fasthttp"
 )
 
@@ -71,7 +72,8 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	user, token, err := c.authService.Login(input.Username, input.Email, input.Password)
+	userIP := ip.GetIP(ctx)
+	user, token, err := c.authService.Login(input.Username, input.Email, input.Password, userIP)
 	if err != nil {
 		res, _ := json.Marshal(map[string]string{
 			"error": err.Error(),

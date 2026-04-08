@@ -3,6 +3,7 @@ package main
 import (
 	httpx "github.com/ViitoJooj/door/internal/http"
 	"github.com/ViitoJooj/door/internal/http/handler"
+	"github.com/ViitoJooj/door/internal/http/middlewares"
 	"github.com/ViitoJooj/door/internal/repository"
 	"github.com/ViitoJooj/door/internal/services"
 	"github.com/ViitoJooj/door/pkg/database"
@@ -19,5 +20,6 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 
 	r := httpx.SetupRouter(authHandler)
-	fasthttp.ListenAndServe(":7171", r)
+	handlerWithCors := middlewares.CorsMiddleware(r)
+	fasthttp.ListenAndServe(":7171", handlerWithCors)
 }

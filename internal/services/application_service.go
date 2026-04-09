@@ -52,3 +52,48 @@ func (s ApplicationService) Create(applicationUrl string, applicationCountry str
 
 	return newApplication, user, nil
 }
+
+func (s ApplicationService) GetAll() ([]*domain.Application, error) {
+	return s.ApplicationRepo.ListApplications()
+}
+
+func (s ApplicationService) GetByID(id int64) (*domain.Application, error) {
+	application, err := s.ApplicationRepo.FindApplicationByID(id)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	} else if application == nil {
+		log.Println("application no exists.")
+		return nil, errors.New("Application no exists.")
+	}
+
+	return application, nil
+}
+
+func (s ApplicationService) DeleteById(id int64) (*domain.Application, *domain.User, error) {
+	application, err := s.ApplicationRepo.FindApplicationByID(id)
+	if err != nil {
+		log.Println(err)
+		return nil, nil, errors.New("internal error")
+	} else if application == nil {
+		log.Println(err)
+		return nil, nil, errors.New("internal error")
+	}
+
+	user, err := s.AuthRepo.FindUserByID(application.Created_by)
+	if err != nil {
+		log.Println(err)
+		return nil, nil, errors.New("internal error")
+	} else if user == nil {
+		log.Println(err)
+		return nil, nil, errors.New("internal error")
+	}
+
+	err = s.ApplicationRepo.DeleteApplicationByID(application.ID)
+	if err != nil {
+		log.Println(err)
+		return nil, nil, errors.New("internal error")
+	}
+
+	return application, user, nil
+}

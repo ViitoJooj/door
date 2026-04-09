@@ -18,5 +18,8 @@ func RegisterProxyRoutes(r *router.Router, proxyController *handler.ProxyHandler
 }
 
 func RegisterApplicationRouters(r *router.Router, applicationController *handler.ApplicationHandler) {
+	r.GET("/api/v1/applications", middlewares.UserIdMiddleware(applicationController.GetAll))
+	r.GET("/api/v1/applications/{path:*}", middlewares.UserIdMiddleware(applicationController.GetByID))
 	r.POST("/api/v1/applications", middlewares.UserIdMiddleware(applicationController.Create))
+	r.DELETE("/api/v1/applications/{path:*}", middlewares.UserIdMiddleware(applicationController.DeleteById))
 }

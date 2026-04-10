@@ -10,9 +10,9 @@ type SQLite struct {
 	db *sql.DB
 }
 
-func NewSQLiteRepository(db *sql.DB) (UserRepository, ApplicationRepository) {
+func NewSQLiteRepository(db *sql.DB) (UserRepository, ApplicationRepository, RequestLogRepository) {
 	repo := &SQLite{db: db}
-	return repo, repo
+	return repo, repo, repo
 }
 
 type UserRepository interface {
@@ -33,4 +33,8 @@ type ApplicationRepository interface {
 	ListApplications() ([]*domain.Application, error)
 	UpdateApplication(application *domain.Application) error
 	DeleteApplicationByID(id int) error
+}
+
+type RequestLogRepository interface {
+	InsertRequestLog(log *domain.RequestLog) error
 }

@@ -18,14 +18,12 @@ import (
 func main() {
 	dotenv.GetEnv()
 	database.Conn()
-	router := router.New()
 
-	//Log
+	router := router.New()
 	log := logger.NewLogger(os.Stdout)
-	logRepo := repository.NewSQLiteRequestLogRepository(database.DB)
+	authRepo, applicationRepo, logRepo := repository.NewSQLiteRepository(database.DB)
 
 	//Auth
-	authRepo, applicationRepo := repository.NewSQLiteRepository(database.DB)
 	authService := services.NewAuthService(authRepo, log)
 	authHandler := handler.NewAuthHandler(authService)
 

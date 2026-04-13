@@ -14,10 +14,12 @@ jobs:
     steps:
       - name: Gen random dotenv
         run: |
-          echo "API_KEY=$(openssl rand -hex 32)" >> .env
-          echo "SECRET=$(openssl rand -hex 64)" >> .env
-          echo "DB_USER=user" >> .env
-          echo "DB_PASS=$(openssl rand -base64 24)" >> .env
+          echo "JWT_ACCESS_TOKEN_SECRET=$(openssl rand -hex 32)" >> .env
+          echo "JWT_REFRESH_TOKEN_SECRET=$(openssl rand -hex 64)" >> .env
+          echo "BASE_URL=http://localhost:7171" >> .env
+          echo "MAX_ATTEMPTS=50" >> .env
+          echo "TIMEOUT=5" >> .env
+          echo "ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000" >> .env
 
       - name: Config Go
         uses: actions/checkout@v4

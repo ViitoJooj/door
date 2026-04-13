@@ -56,6 +56,21 @@ jobs:
           find . -maxdepth 3 -type f -name "*.db"
           ls -la
 
+      - name: Wait API ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:7171 > /dev/null; then
+              echo "API is ready!"
+              exit 0
+            fi
+            echo "Waiting API..."
+            sleep 1
+          done
+
+          echo "API did not start in time"
+          cat core.log || true
+          exit 1
+
       - name: Run Python
         working-directory: tests/
         run: |

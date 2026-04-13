@@ -12,6 +12,13 @@ jobs:
       ubuntu-latest
     
     steps:
+      - name: Gen random dotenv
+      run: |
+        echo "API_KEY=$(openssl rand -hex 32)" >> .env
+        echo "SECRET=$(openssl rand -hex 64)" >> .env
+        echo "DB_USER=user" >> .env
+        echo "DB_PASS=$(openssl rand -base64 24)" >> .env
+
       - name: Config Go
         uses: actions/checkout@v4
         with:

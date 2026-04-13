@@ -13,7 +13,7 @@ jobs:
     
     steps:
       - name: Config Go
-        uses: action/checkout@v4
+        uses: actions/checkout@v4
         with:
           go-version: "1.26.2"
 

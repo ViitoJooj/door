@@ -59,7 +59,7 @@ jobs:
       - name: Wait API ready
         run: |
           for i in {1..30}; do
-            if curl -s http://localhost:7171 > /dev/null; then
+            if curl -s http://localhost:7171/proxy/ > /dev/null; then
               echo "API is ready!"
               exit 0
             fi

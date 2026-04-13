@@ -52,15 +52,6 @@ All routes below require `Authorization: Bearer <access_token>`.
 | `POST` | `/api/v1/applications` | Register a new application |
 | `DELETE` | `/api/v1/applications/:id` | Remove an application |
 
-### Example: Add an application
-
-```bash
-curl -X POST http://localhost:7171/api/v1/applications \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"url": "http://my-service:8080", "country": "Brazil"}'
-```
-
 ## Token Strategy
 
 - **Access token** — short-lived (15 min), kept in memory on the client

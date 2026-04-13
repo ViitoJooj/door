@@ -1,13 +1,6 @@
 package dtos
 
-// Utils
-type UserData struct {
-	ID         int    `json:"id"`
-	Username   string `json:"username"`
-	Email      string `json:"email"`
-	Updated_at string `json:"updated_at"`
-	Created_at string `json:"created_at"`
-}
+import dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
 
 // Register
 type RegisterInput struct {
@@ -17,9 +10,9 @@ type RegisterInput struct {
 }
 
 type RegisterOutput struct {
-	Success bool     `json:"success"`
-	Message string   `json:"message"`
-	Data    UserData `json:"data"`
+	Success bool               `json:"success"`
+	Message string             `json:"message"`
+	Data    dto_utils.UserData `json:"data"`
 }
 
 // Login
@@ -30,8 +23,8 @@ type LoginInput struct {
 }
 
 type LoginOutput struct {
-	Success bool     `json:"success"`
-	Message string   `json:"message"`
-	Data    UserData `json:"data"`
-	Token   string   `json:"token"`
+	Success bool               `json:"success"`
+	Message string             `json:"message"`
+	Data    dto_utils.UserData `json:"data"`
+	Token   string             `json:"token"`
 }

@@ -1,16 +1,18 @@
 package dtos
 
-import "time"
+import (
+	"time"
 
-// Utils
+	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
+)
 
 type ApplicationData struct {
-	ID         int       `json:"id"`
-	Url        string    `json:"url"`
-	Country    string    `json:"country"`
-	Created_by UserData  `json:"created_by"`
-	Updated_at time.Time `json:"updated_at"`
-	Created_at time.Time `json:"created_at"`
+	ID         int                `json:"id"`
+	Url        string             `json:"url"`
+	Country    string             `json:"country"`
+	Created_by dto_utils.UserData `json:"created_by"`
+	Updated_at time.Time          `json:"updated_at"`
+	Created_at time.Time          `json:"created_at"`
 }
 
 type ApplicationOutput struct {

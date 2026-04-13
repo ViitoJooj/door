@@ -1,8 +1,9 @@
 #Create
 POST http://localhost:7171/api/v1/applications
 
+
 {
-    "url": "http://localhost:8086",
+    "url": "http://localhost:8080",
     "country": "brasil"
 }
 
@@ -10,7 +11,8 @@ POST http://localhost:7171/api/v1/applications
 GET http://localhost:7171/api/v1/applications
 
 #Get by id
-GET http://localhost:7171/api/v1/applications/7
+GET http://localhost:7171/api/v1/applications/10
+
 
 #Delete by id
-DELETE http://localhost:7171/api/v1/applications/8
+DELETE http://localhost:7171/api/v1/applications/9

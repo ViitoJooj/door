@@ -2,10 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"strings"
 
 	"github.com/ViitoJooj/door/internal/domain"
 	"github.com/ViitoJooj/door/internal/http/dtos"
+	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
 	"github.com/ViitoJooj/door/internal/services"
 	"github.com/ViitoJooj/door/pkg/ip"
 	"github.com/valyala/fasthttp"
@@ -25,9 +27,15 @@ func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 	var input dtos.RegisterInput
 
 	if err := json.Unmarshal(ctx.PostBody(), &input); err != nil {
+		log.Println("invalid json.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "invalid json.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.SetContentType("application/json")
-		ctx.SetBody([]byte(`{"error":"invalid json"}`))
+		ctx.SetBody(res)
 		return
 	}
 
@@ -39,16 +47,22 @@ func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 
 	createdUser, err := h.authService.Register(user)
 	if err != nil {
+		log.Println("internal error.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.SetContentType("application/json")
-		ctx.SetBody([]byte(`{"error":"` + err.Error() + `"}`))
+		ctx.SetBody(res)
 		return
 	}
 
 	output := dtos.RegisterOutput{
 		Success: true,
 		Message: "User created.",
-		Data: dtos.UserData{
+		Data: dto_utils.UserData{
 			Username:   createdUser.Username,
 			Email:      createdUser.Email,
 			Updated_at: createdUser.Updated_at.String(),
@@ -67,18 +81,27 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	var input dtos.LoginInput
 
 	if err := json.Unmarshal(ctx.PostBody(), &input); err != nil {
+		log.Println("invalid json.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "invalid json.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.SetContentType("application/json")
-		ctx.SetBody([]byte(`{"error":"invalid json"}`))
+		ctx.SetBody(res)
 		return
 	}
 
 	userIP := ip.GetIP(ctx)
 	user, token, err := c.authService.Login(input.Username, input.Email, input.Password, userIP)
 	if err != nil {
-		res, _ := json.Marshal(map[string]string{
-			"error": err.Error(),
-		})
+		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.SetContentType("application/json")
 		ctx.SetBody(res)
@@ -88,7 +111,7 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	output := dtos.LoginOutput{
 		Success: true,
 		Message: "Login successful.",
-		Data: dtos.UserData{
+		Data: dto_utils.UserData{
 			ID:         user.ID,
 			Username:   user.Username,
 			Email:      user.Email,
@@ -108,14 +131,28 @@ func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
 	authHeader := string(ctx.Request.Header.Peek("Authorization"))
 
 	if authHeader == "" {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(`{"error":"Authorization header not found"}`)
+		log.Println("Authorization header not found")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "Authorization header not found",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
 	if !strings.HasPrefix(authHeader, "Bearer ") {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(`{"error":"Invalid Authorization format"}`)
+		log.Println("Invalid Authorization format")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "Invalid Authorization format",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
@@ -123,8 +160,15 @@ func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
 
 	_, err := c.authService.Token(tokenString)
 	if err != nil {
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(`{"error":"Invalid token"}`)
+		log.Println("invalid token.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "invalid token.",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 

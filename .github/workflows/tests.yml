@@ -59,11 +59,14 @@ jobs:
       - name: Wait API ready
         run: |
           for i in {1..30}; do
-            if curl -s http://localhost:7171/proxy/ > /dev/null; then
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:7171/proxy/)
+            echo "HTTP status: $code"
+
+            if [ "$code" = "200" ]; then
               echo "API is ready!"
               exit 0
             fi
-            echo "Waiting API..."
+
             sleep 1
           done
 

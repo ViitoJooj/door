@@ -8,6 +8,7 @@ import (
 
 	"github.com/ViitoJooj/door/internal/domain"
 	"github.com/ViitoJooj/door/internal/http/dtos"
+	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
 	"github.com/ViitoJooj/door/internal/services"
 	"github.com/valyala/fasthttp"
 )
@@ -26,27 +27,57 @@ func (h *ApplicationHandler) Create(ctx *fasthttp.RequestCtx) {
 	var input dtos.ApplicationInput
 
 	if err := json.Unmarshal(ctx.PostBody(), &input); err != nil {
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadGateway)
 		ctx.SetContentType("application/json")
-		ctx.SetBody([]byte(`{"error":"invalid json"}`))
+		ctx.SetBody(res)
 		return
 	}
 
 	userIdRaw := ctx.UserValue("userId")
 	if userIdRaw == nil {
+		log.Println("userIdRaw not exists.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
 	userId, ok := userIdRaw.(int)
 	if !ok {
+		log.Println("userId Not valid.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
 	createApplication, user, err := h.applicationService.Create(input.Url, input.Country, userId)
 	if err != nil {
+		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
@@ -57,7 +88,7 @@ func (h *ApplicationHandler) Create(ctx *fasthttp.RequestCtx) {
 			ID:      createApplication.ID,
 			Url:     createApplication.Url,
 			Country: createApplication.Country,
-			Created_by: dtos.UserData{
+			Created_by: dto_utils.UserData{
 				ID:         user.ID,
 				Username:   user.Username,
 				Email:      user.Email,
@@ -70,7 +101,7 @@ func (h *ApplicationHandler) Create(ctx *fasthttp.RequestCtx) {
 	}
 
 	res, _ := json.Marshal(output)
-	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetStatusCode(fasthttp.StatusCreated)
 	ctx.SetContentType("application/json")
 	ctx.SetBody(res)
 }
@@ -79,7 +110,15 @@ func (h *ApplicationHandler) GetAll(ctx *fasthttp.RequestCtx) {
 	var data []*domain.Application
 	data, err := h.applicationService.GetAll()
 	if err != nil {
+		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
@@ -94,22 +133,43 @@ func (h *ApplicationHandler) GetByID(ctx *fasthttp.RequestCtx) {
 
 	application_id_str := strings.ReplaceAll(proxy_path, "/api/v1/applications/", "")
 	if application_id_str == "" {
-		log.Println("invalid path")
-		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		log.Println("Invalid id.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "invalid id.",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
 	applicationId, err := strconv.Atoi(application_id_str)
 	if err != nil {
 		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
 	data, err := h.applicationService.GetByID(applicationId)
 	if err != nil {
-		log.Println("invalid path")
-		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		log.Println("invalid id.")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "invalid id.",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
@@ -126,14 +186,28 @@ func (h *ApplicationHandler) DeleteById(ctx *fasthttp.RequestCtx) {
 	applicationId, err := strconv.Atoi(application_id_str)
 	if err != nil {
 		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
 	application, user, err := h.applicationService.DeleteById(applicationId)
 	if err != nil {
-		log.Println("invalid path")
+		log.Println("no application")
+		output := dto_utils.Error{
+			Success: false,
+			Message: "invalid id.",
+		}
+		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadGateway)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
 		return
 	}
 
@@ -144,7 +218,7 @@ func (h *ApplicationHandler) DeleteById(ctx *fasthttp.RequestCtx) {
 			ID:      application.ID,
 			Url:     application.Url,
 			Country: application.Country,
-			Created_by: dtos.UserData{
+			Created_by: dto_utils.UserData{
 				ID:         user.ID,
 				Username:   user.Username,
 				Email:      user.Email,

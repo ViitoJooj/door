@@ -1,0 +1,134 @@
+openapi: 3.1.0
+info:
+  title: Door - core api
+  version: 0.0.1
+  description: 
+    To use the Door API correctly, you must first register a new user at the /<a href="#/Auth/post_api_v1_auth_register">/api/v1/auth/register</a> endpoint. Once registered, log in via <a href="#/Auth/post_api_v1_auth_login">/api/v1/auth/login</a> to obtain your authentication token, which must be included in the header of every subsequent request as `Authorization Bearer <your-token>`. Additionally, you will need to call the <a href="#/Auth/post_api_v1_auth_token">/api/v1/auth/token</a> endpoint to retrieve the `access_token` that is stored in your cookies.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+servers:
+  - url: http://localhost:7171
+    description: Core router
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags: 
+        - Auth
+      summary: Register a new user
+      description: creates a new user account and returns the profile details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+                data:
+                  username: "string"
+                  email: "string"
+                  updated_at: "string"
+                  created_at: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              schema:
+                type: object
+              example:
+                success: false
+                message: "internal error."
+                
+  /api/v1/auth/login:
+    post:
+      tags: 
+        - Auth
+      summary: Login router
+      description: Login for new token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+                data:
+                  id: "int"
+                  username: "string"
+                  email: "string"
+                  updated_at: "string"
+                  created_at: "string"
+                token: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              schema:
+                type: object
+              example:
+                success: false
+                message: "internal error."
+
+  /api/v1/auth/token:
+    get:
+      tags: 
+        - Auth
+      summary: Get you access token
+      description: Generate new token for you in your cookies (requires login)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token generated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              example:
+                success: false
+                message: "internal error."

@@ -1,7 +1,6 @@
 #Create
 POST http://localhost:7171/door/api/v1/applications
 
-
 {
     "url": "http://localhost:8080",
     "country": "brasil"
@@ -15,4 +14,4 @@ GET http://localhost:7171/door/api/v1/applications/10
 
 
 #Delete by id
-DELETE http://localhost:7171/door/api/v1/applications/9
+DELETE http://localhost:7171/door/api/v1/applications/2

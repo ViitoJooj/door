@@ -132,3 +132,189 @@ paths:
               example:
                 success: false
                 message: "internal error."
+
+  /door/api/v1/auth/logout:
+    get:
+      tags: 
+        - Auth
+      summary: logout for you acount
+      description: (requires login)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              example:
+                success: false
+                message: "internal error."
+
+  /door/api/v1/applications/:
+    post:
+      tags: 
+        - Application
+      summary: Create a new application
+      description: here you create you new application
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                country:
+                  type: string
+      responses:
+        '200':
+          description: Application has created with successfull.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+                data: 
+                  id: "int"
+                  url: "string"
+                  country: "string"
+                  created_by:
+                    id: "int"
+                    username: "string"
+                    email: "string"
+                    updated_at: "string"
+                    created_at: "string"
+                  updated_at: "string"
+                  created_at: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              example:
+                success: false
+                message: "internal error."
+
+    get:
+      tags: 
+        - Application
+      summary: Get all applications
+      description: list all applications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Applications listed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+                data:
+                  - id: "int"
+                    url: "string"
+                    country: "string"
+                    updated_at: "string"
+                    created_at: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              example:
+                success: false
+                message: "internal error."
+
+  /door/api/v1/applications/{id}:
+    get:
+      tags: 
+        - Application
+      summary: Get application by id
+      description: returns a single application by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Application fetched successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+                data:
+                  id: "int"
+                  url: "string"
+                  country: "string"
+                  updated_at: "string"
+                  created_at: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json: 
+              example:
+                success: false
+                message: "internal error."
+    delete:
+      tags:
+        - Application
+      summary: Delete application by id
+      description: deletes a single application by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Application deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                success: true
+                message: "string"
+                data:
+                  id: "int"
+                  url: "string"
+                  country: "string"
+                  created_by:
+                    id: "int"
+                    username: "string"
+                    email: "string"
+                    updated_at: "string"
+                    created_at: "string"
+                  updated_at: "string"
+                  created_at: "string"
+        '500':
+          description: internal error.
+          content:
+            application/json:
+              example:
+                success: false
+                message: "internal error."

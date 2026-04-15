@@ -1,5 +1,5 @@
 # Register
-POST http://localhost:7171/api/v1/auth/register
+POST http://localhost:7171/door/api/v1/auth/register
 
 {
     "username": "door-admin",
@@ -8,7 +8,7 @@ POST http://localhost:7171/api/v1/auth/register
 }
 
 # Login
-POST http://localhost:7171/api/v1/auth/login
+POST http://localhost:7171/door/api/v1/auth/login
 
 {
     "username": "door-admin",
@@ -17,4 +17,4 @@ POST http://localhost:7171/api/v1/auth/login
 }
 
 # Token
-GET http://localhost:7171/api/v1/auth/token
+GET http://localhost:7171/door/api/v1/auth/token

@@ -27,7 +27,7 @@ export class LogsComponent implements OnInit, OnDestroy {
       switchMap(() => this.requestLogService.getAll())
     ).subscribe({
       next: (res) => {
-        const visible = (res.data ?? []).filter(log => log.path !== '/api/v1/logs');
+        const visible = (res.data ?? []).filter(log => log.path !== '/door/api/v1/logs');
         this.logs.set(visible);
         this.loading.set(false);
       },

@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env"))
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8080")
-LOGIN_ROUTE = "/api/v1/auth/login"
+LOGIN_ROUTE = "/door/api/v1/auth/login"
 MAX_ATTEMPTS = int(os.getenv("MAX_ATTEMPTS", "30"))
 TIMEOUT = float(os.getenv("TIMEOUT", "5"))
 DB_PATH = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), "..", "..", "database.db"))

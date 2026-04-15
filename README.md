@@ -36,10 +36,10 @@
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/v1/auth/register` | Register a new user |
-| `POST` | `/api/v1/auth/login` | Login and receive tokens |
-| `GET` | `/api/v1/auth/token` | Validate / refresh access token |
-| `POST` | `/api/v1/auth/logout` | Logout and clear session |
+| `POST` | `/door/api/v1/auth/register` | Register a new user |
+| `POST` | `/door/api/v1/auth/login` | Login and receive tokens |
+| `GET` | `/door/api/v1/auth/token` | Validate / refresh access token |
+| `POST` | `/door/api/v1/auth/logout` | Logout and clear session |
 
 ### Applications (proxy targets)
 
@@ -47,10 +47,10 @@ All routes below require `Authorization: Bearer <access_token>`.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/v1/applications` | List all registered applications |
-| `GET` | `/api/v1/applications/:id` | Get a single application |
-| `POST` | `/api/v1/applications` | Register a new application |
-| `DELETE` | `/api/v1/applications/:id` | Remove an application |
+| `GET` | `/door/api/v1/applications` | List all registered applications |
+| `GET` | `/door/api/v1/applications/:id` | Get a single application |
+| `POST` | `/door/api/v1/applications` | Register a new application |
+| `DELETE` | `/door/api/v1/applications/:id` | Remove an application |
 
 ## Token Strategy
 

@@ -131,7 +131,7 @@ func (h *ApplicationHandler) GetAll(ctx *fasthttp.RequestCtx) {
 func (h *ApplicationHandler) GetByID(ctx *fasthttp.RequestCtx) {
 	proxy_path := string(ctx.Path())
 
-	application_id_str := strings.ReplaceAll(proxy_path, "/api/v1/applications/", "")
+	application_id_str := strings.ReplaceAll(proxy_path, "/door/api/v1/applications/", "")
 	if application_id_str == "" {
 		log.Println("Invalid id.")
 		output := dto_utils.Error{
@@ -181,7 +181,7 @@ func (h *ApplicationHandler) GetByID(ctx *fasthttp.RequestCtx) {
 
 func (h *ApplicationHandler) DeleteById(ctx *fasthttp.RequestCtx) {
 	proxy_path := string(ctx.Path())
-	application_id_str := strings.ReplaceAll(proxy_path, "/api/v1/applications/", "")
+	application_id_str := strings.ReplaceAll(proxy_path, "/door/api/v1/applications/", "")
 
 	applicationId, err := strconv.Atoi(application_id_str)
 	if err != nil {

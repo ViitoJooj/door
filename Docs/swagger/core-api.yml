@@ -3,7 +3,7 @@ info:
   title: Door - core api
   version: 0.0.1
   description: 
-    To use the Door API correctly, you must first register a new user at the /<a href="#/Auth/post_api_v1_auth_register">/api/v1/auth/register</a> endpoint. Once registered, log in via <a href="#/Auth/post_api_v1_auth_login">/api/v1/auth/login</a> to obtain your authentication token, which must be included in the header of every subsequent request as `Authorization Bearer <your-token>`. Additionally, you will need to call the <a href="#/Auth/post_api_v1_auth_token">/api/v1/auth/token</a> endpoint to retrieve the `access_token` that is stored in your cookies.
+    To use the Door API correctly, you must first register a new user at the /<a href="#/Auth/post_api_v1_auth_register">/door/api/v1/auth/register</a> endpoint. Once registered, log in via <a href="#/Auth/post_api_v1_auth_login">/door/api/v1/auth/login</a> to obtain your authentication token, which must be included in the header of every subsequent request as `Authorization Bearer <your-token>`. Additionally, you will need to call the <a href="#/Auth/post_api_v1_auth_token">/door/api/v1/auth/token</a> endpoint to retrieve the `access_token` that is stored in your cookies.
 
 components:
   securitySchemes:
@@ -17,7 +17,7 @@ servers:
     description: Core router
 
 paths:
-  /api/v1/auth/register:
+  /door/api/v1/auth/register:
     post:
       tags: 
         - Auth
@@ -61,7 +61,7 @@ paths:
                 success: false
                 message: "internal error."
                 
-  /api/v1/auth/login:
+  /door/api/v1/auth/login:
     post:
       tags: 
         - Auth
@@ -107,7 +107,7 @@ paths:
                 success: false
                 message: "internal error."
 
-  /api/v1/auth/token:
+  /door/api/v1/auth/token:
     get:
       tags: 
         - Auth

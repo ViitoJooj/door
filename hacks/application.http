@@ -1,5 +1,5 @@
 #Create
-POST http://localhost:7171/api/v1/applications
+POST http://localhost:7171/door/api/v1/applications
 
 
 {
@@ -8,11 +8,11 @@ POST http://localhost:7171/api/v1/applications
 }
 
 #Get all
-GET http://localhost:7171/api/v1/applications
+GET http://localhost:7171/door/api/v1/applications
 
 #Get by id
-GET http://localhost:7171/api/v1/applications/10
+GET http://localhost:7171/door/api/v1/applications/10
 
 
 #Delete by id
-DELETE http://localhost:7171/api/v1/applications/9
+DELETE http://localhost:7171/door/api/v1/applications/9

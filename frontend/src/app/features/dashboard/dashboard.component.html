@@ -1,0 +1,39 @@
+<div class="layout">
+
+  <aside class="sidebar">
+    <span class="sidebar__logo">door.</span>
+
+    <nav class="sidebar__nav">
+      <button
+        class="nav-item"
+        [class.nav-item--active]="activeView() === 'applications'"
+        (click)="setView('applications')"
+        type="button"
+      >
+        Aplicações
+      </button>
+      <button
+        class="nav-item"
+        [class.nav-item--active]="activeView() === 'logs'"
+        (click)="setView('logs')"
+        type="button"
+      >
+        Logs
+      </button>
+    </nav>
+
+    <button class="sidebar__logout" (click)="logout()" type="button">
+      Sair
+    </button>
+  </aside>
+
+  <main class="content">
+    @if (activeView() === 'applications') {
+      <app-applications />
+    }
+    @if (activeView() === 'logs') {
+      <app-logs />
+    }
+  </main>
+
+</div>

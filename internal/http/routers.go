@@ -17,6 +17,10 @@ func RegisterProxyRoutes(r *router.Router, proxyController *handler.ProxyHandler
 	r.ANY("/proxy/{path:*}", proxyController.Proxy)
 }
 
+func RegisterRequestLogRoutes(r *router.Router, requestLogController *handler.RequestLogHandler) {
+	r.GET("/api/v1/logs", middlewares.UserIdMiddleware(requestLogController.GetAll))
+}
+
 func RegisterApplicationRouters(r *router.Router, applicationController *handler.ApplicationHandler) {
 	r.GET("/api/v1/applications", middlewares.UserIdMiddleware(applicationController.GetAll))
 	r.GET("/api/v1/applications/{path:*}", middlewares.UserIdMiddleware(applicationController.GetByID))

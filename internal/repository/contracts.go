@@ -37,4 +37,5 @@ type ApplicationRepository interface {
 
 type RequestLogRepository interface {
 	InsertRequestLog(log *domain.RequestLog) error
+	ListRequestLogs() ([]*domain.RequestLog, error)
 }

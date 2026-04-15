@@ -35,9 +35,14 @@ func main() {
 	proxyService := services.NewProxyService()
 	proxyHandler := handler.NewProxyHandler(proxyService)
 
+	//RequestLog
+	requestLogService := services.NewRequestLogService(logRepo)
+	requestLogHandler := handler.NewRequestLogHandler(requestLogService)
+
 	//Routers
 	httpx.RegisterAuthRoutes(router, authHandler)
 	httpx.RegisterApplicationRouters(router, applicationHandler)
+	httpx.RegisterRequestLogRoutes(router, requestLogHandler)
 	httpx.RegisterProxyRoutes(router, proxyHandler)
 
 	//Middelwares

@@ -190,6 +190,48 @@ func (r *SQLite) FindApplicationByCountry(country string) (*domain.Application, 
 	return application, err
 }
 
+func (r *SQLite) ListRequestLogs() ([]*domain.RequestLog, error) {
+	rows, err := r.db.Query(`
+		SELECT id, method, path, query_string, status_code, response_time_ms, ip, country, user_agent, referer, request_size, response_size, internal, created_at
+		FROM request_logs
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []*domain.RequestLog
+
+	for rows.Next() {
+		entry := &domain.RequestLog{}
+
+		err := rows.Scan(
+			&entry.ID,
+			&entry.Method,
+			&entry.Path,
+			&entry.QueryString,
+			&entry.StatusCode,
+			&entry.ResponseTimeMs,
+			&entry.IP,
+			&entry.Country,
+			&entry.UserAgent,
+			&entry.Referer,
+			&entry.RequestSize,
+			&entry.ResponseSize,
+			&entry.Internal,
+			&entry.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		logs = append(logs, entry)
+	}
+
+	return logs, rows.Err()
+}
+
 func (r *SQLite) FindApplicationByURL(url string) (*domain.Application, error) {
 	application := &domain.Application{}
 

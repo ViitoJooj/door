@@ -73,7 +73,10 @@ export class LoginComponent {
     this.authService.register(this.registerForm.value).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/dashboard']);
+        this.registerForm.reset();
+        // backend não retorna token no cadastro — redireciona para o login
+        this.setTab('login');
+        this.errorMessage.set(null);
       },
       error: () => {
         this.loading.set(false);

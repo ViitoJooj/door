@@ -11,14 +11,12 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
+  success: boolean;
+  message: string;
+  token: string;
 }
 
-export interface RefreshRequest {
-  refresh_token: string;
-}
-
-export interface RefreshResponse {
-  access_token: string;
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
 }

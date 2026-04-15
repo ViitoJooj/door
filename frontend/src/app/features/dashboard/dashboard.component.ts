@@ -1,23 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { ApplicationsComponent } from './views/applications/applications.component';
+import { LogsComponent } from './views/logs/logs.component';
+
+type ActiveView = 'applications' | 'logs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  template: `
-    <div style="padding: 48px; color: #f0f0f0; background: #0e0e10; height: 100vh;">
-      <h1 style="font-size: 22px; font-weight: 600; letter-spacing: -0.05em;">door.</h1>
-      <p style="margin-top: 16px; color: #505058; font-size: 13px;">Dashboard em construção.</p>
-      <button
-        (click)="logout()"
-        style="margin-top: 24px; background: #f0f0f0; color: #0e0e10; border: none; border-radius: 4px; padding: 8px 16px; font-size: 13px; cursor: pointer;">
-        Sair
-      </button>
-    </div>
-  `
+  imports: [CommonModule, ApplicationsComponent, LogsComponent],
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
+  activeView = signal<ActiveView>('applications');
+
   constructor(private authService: AuthService) {}
+
+  setView(view: ActiveView): void {
+    this.activeView.set(view);
+  }
 
   logout(): void {
     this.authService.logout();

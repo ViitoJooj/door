@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/ViitoJooj/door/pkg/dotenv"
+	"github.com/ViitoJooj/ward/pkg/dotenv"
 	"github.com/valyala/fasthttp"
 )
 

@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/ViitoJooj/door/internal/services"
+	"github.com/ViitoJooj/ward/internal/services"
 	"github.com/valyala/fasthttp"
 )
 

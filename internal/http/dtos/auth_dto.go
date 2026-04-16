@@ -1,6 +1,6 @@
 package dtos
 
-import dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
+import dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
 
 // Register
 type RegisterInput struct {

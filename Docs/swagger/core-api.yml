@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Door - core api
+  title: ward - core api
   version: 0.0.1
   description: 
-    To use the Door API correctly, you must first register a new user at the /<a href="#/Auth/post_api_v1_auth_register">/door/api/v1/auth/register</a> endpoint. Once registered, log in via <a href="#/Auth/post_api_v1_auth_login">/door/api/v1/auth/login</a> to obtain your authentication token, which must be included in the header of every subsequent request as `Authorization Bearer <your-token>`. Additionally, you will need to call the <a href="#/Auth/post_api_v1_auth_token">/door/api/v1/auth/token</a> endpoint to retrieve the `access_token` that is stored in your cookies.
+    To use the ward API correctly, you must first register a new user at the /<a href="#/Auth/post_api_v1_auth_register">/ward/api/v1/auth/register</a> endpoint. Once registered, log in via <a href="#/Auth/post_api_v1_auth_login">/ward/api/v1/auth/login</a> to obtain your authentication token, which must be included in the header of every subsequent request as `Authorization Bearer <your-token>`. Additionally, you will need to call the <a href="#/Auth/post_api_v1_auth_token">/ward/api/v1/auth/token</a> endpoint to retrieve the `access_token` that is stored in your cookies.
 
 components:
   securitySchemes:
@@ -17,7 +17,7 @@ servers:
     description: Core router
 
 paths:
-  /door/api/v1/auth/register:
+  /ward/api/v1/auth/register:
     post:
       tags: 
         - Auth
@@ -61,7 +61,7 @@ paths:
                 success: false
                 message: "internal error."
                 
-  /door/api/v1/auth/login:
+  /ward/api/v1/auth/login:
     post:
       tags: 
         - Auth
@@ -107,7 +107,7 @@ paths:
                 success: false
                 message: "internal error."
 
-  /door/api/v1/auth/token:
+  /ward/api/v1/auth/token:
     get:
       tags: 
         - Auth
@@ -133,7 +133,7 @@ paths:
                 success: false
                 message: "internal error."
 
-  /door/api/v1/auth/logout:
+  /ward/api/v1/auth/logout:
     get:
       tags: 
         - Auth
@@ -159,7 +159,7 @@ paths:
                 success: false
                 message: "internal error."
 
-  /door/api/v1/applications/:
+  /ward/api/v1/applications/:
     post:
       tags: 
         - Application
@@ -239,7 +239,7 @@ paths:
                 success: false
                 message: "internal error."
 
-  /door/api/v1/applications/{id}:
+  /ward/api/v1/applications/{id}:
     get:
       tags: 
         - Application

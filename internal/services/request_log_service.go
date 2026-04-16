@@ -3,8 +3,8 @@ package services
 import (
 	"log"
 
-	"github.com/ViitoJooj/door/internal/domain"
-	"github.com/ViitoJooj/door/internal/repository"
+	"github.com/ViitoJooj/ward/internal/domain"
+	"github.com/ViitoJooj/ward/internal/repository"
 )
 
 type RequestLogService struct {

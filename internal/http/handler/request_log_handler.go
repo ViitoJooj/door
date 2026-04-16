@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/ViitoJooj/door/internal/http/dtos"
-	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
-	"github.com/ViitoJooj/door/internal/services"
+	"github.com/ViitoJooj/ward/internal/http/dtos"
+	dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
+	"github.com/ViitoJooj/ward/internal/services"
 	"github.com/valyala/fasthttp"
 )
 

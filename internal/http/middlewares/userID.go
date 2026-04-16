@@ -3,8 +3,8 @@ package middlewares
 import (
 	"encoding/json"
 
-	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
-	"github.com/ViitoJooj/door/pkg/jwtTokens"
+	dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
+	"github.com/ViitoJooj/ward/pkg/jwtTokens"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/valyala/fasthttp"
 )

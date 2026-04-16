@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ViitoJooj/door/pkg/dotenv"
+	"github.com/ViitoJooj/ward/pkg/dotenv"
 	"github.com/golang-jwt/jwt/v4"
 )
 

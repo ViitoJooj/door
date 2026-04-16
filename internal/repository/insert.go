@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/ViitoJooj/door/internal/domain"
+import "github.com/ViitoJooj/ward/internal/domain"
 
 func (r *SQLite) CreateUser(user *domain.User) error {
 	_, err := r.db.Exec(`INSERT INTO users (username, email, password, updated_at, created_at) VALUES (?, ?, ?, ?, ?)`,

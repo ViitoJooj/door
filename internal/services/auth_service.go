@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ViitoJooj/door/internal/domain"
-	"github.com/ViitoJooj/door/internal/repository"
-	"github.com/ViitoJooj/door/pkg/cryptography"
-	"github.com/ViitoJooj/door/pkg/jwtTokens"
-	"github.com/ViitoJooj/door/pkg/logger"
+	"github.com/ViitoJooj/ward/internal/domain"
+	"github.com/ViitoJooj/ward/internal/repository"
+	"github.com/ViitoJooj/ward/pkg/cryptography"
+	"github.com/ViitoJooj/ward/pkg/jwtTokens"
+	"github.com/ViitoJooj/ward/pkg/logger"
 	"github.com/golang-jwt/jwt/v4"
 )
 

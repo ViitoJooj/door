@@ -3,14 +3,14 @@ package main
 import (
 	"os"
 
-	httpx "github.com/ViitoJooj/door/internal/http"
-	"github.com/ViitoJooj/door/internal/http/handler"
-	"github.com/ViitoJooj/door/internal/http/middlewares"
-	"github.com/ViitoJooj/door/internal/repository"
-	"github.com/ViitoJooj/door/internal/services"
-	"github.com/ViitoJooj/door/pkg/database"
-	"github.com/ViitoJooj/door/pkg/dotenv"
-	"github.com/ViitoJooj/door/pkg/logger"
+	httpx "github.com/ViitoJooj/ward/internal/http"
+	"github.com/ViitoJooj/ward/internal/http/handler"
+	"github.com/ViitoJooj/ward/internal/http/middlewares"
+	"github.com/ViitoJooj/ward/internal/repository"
+	"github.com/ViitoJooj/ward/internal/services"
+	"github.com/ViitoJooj/ward/pkg/database"
+	"github.com/ViitoJooj/ward/pkg/dotenv"
+	"github.com/ViitoJooj/ward/pkg/logger"
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 )

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/ViitoJooj/door/internal/domain"
-	"github.com/ViitoJooj/door/internal/http/dtos"
-	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
-	"github.com/ViitoJooj/door/internal/services"
-	"github.com/ViitoJooj/door/pkg/ip"
-	"github.com/ViitoJooj/door/pkg/jwtTokens"
+	"github.com/ViitoJooj/ward/internal/domain"
+	"github.com/ViitoJooj/ward/internal/http/dtos"
+	dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
+	"github.com/ViitoJooj/ward/internal/services"
+	"github.com/ViitoJooj/ward/pkg/ip"
+	"github.com/ViitoJooj/ward/pkg/jwtTokens"
 	"github.com/valyala/fasthttp"
 )
 
@@ -96,7 +96,7 @@ func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 	refreshCookie.SetKey("refresh_token")
 	refreshCookie.SetValue(refreshToken)
 	refreshCookie.SetHTTPOnly(true)
-	refreshCookie.SetPath("/door/api/v1/auth/token")
+	refreshCookie.SetPath("/ward/api/v1/auth/token")
 	refreshCookie.SetSecure(false)
 
 	ctx.Response.Header.SetCookie(&accessCookie)
@@ -162,7 +162,7 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	refreshCookie.SetKey("refresh_token")
 	refreshCookie.SetValue(refreshToken)
 	refreshCookie.SetHTTPOnly(true)
-	refreshCookie.SetPath("/door/api/v1/auth/token")
+	refreshCookie.SetPath("/ward/api/v1/auth/token")
 	refreshCookie.SetSecure(false)
 
 	ctx.Response.Header.SetCookie(&accessCookie)
@@ -239,7 +239,7 @@ func (c *AuthHandler) Logout(ctx *fasthttp.RequestCtx) {
 	refreshCookie.SetKey("refresh_token")
 	refreshCookie.SetValue("")
 	refreshCookie.SetExpire(fasthttp.CookieExpireDelete)
-	refreshCookie.SetPath("/door/api/v1/token")
+	refreshCookie.SetPath("/ward/api/v1/token")
 
 	ctx.Response.Header.SetCookie(&accessCookie)
 	ctx.Response.Header.SetCookie(&refreshCookie)

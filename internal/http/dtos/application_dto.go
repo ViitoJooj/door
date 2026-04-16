@@ -3,7 +3,7 @@ package dtos
 import (
 	"time"
 
-	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
+	dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
 )
 
 type ApplicationData struct {

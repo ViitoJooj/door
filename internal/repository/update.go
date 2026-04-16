@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/ViitoJooj/door/internal/domain"
+import "github.com/ViitoJooj/ward/internal/domain"
 
 func (r *SQLite) UpdateUser(user *domain.User) error {
 	_, err := r.db.Exec(`

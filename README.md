@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="./Docs/image/banner.png" alt="Door - API Gateway" width="700"/>
+  <img src="./Docs/image/banner.png" alt="ward - API Gateway" width="700"/>
 
-  <h1>Door</h1>
+  <h1>ward</h1>
   <p>A lightweight, high-performance API Gateway written in Go.</p>
 
   ![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)
@@ -12,7 +12,7 @@
 
 ---
 
-**Door** sits between your clients and your backend services — handling authentication, routing, and logging so your APIs don't have to.
+**ward** sits between your clients and your backend services — handling authentication, routing, and logging so your APIs don't have to.
 
 ## Features
 
@@ -36,10 +36,10 @@
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/door/api/v1/auth/register` | Register a new user |
-| `POST` | `/door/api/v1/auth/login` | Login and receive tokens |
-| `GET` | `/door/api/v1/auth/token` | Validate / refresh access token |
-| `POST` | `/door/api/v1/auth/logout` | Logout and clear session |
+| `POST` | `/ward/api/v1/auth/register` | Register a new user |
+| `POST` | `/ward/api/v1/auth/login` | Login and receive tokens |
+| `GET` | `/ward/api/v1/auth/token` | Validate / refresh access token |
+| `POST` | `/ward/api/v1/auth/logout` | Logout and clear session |
 
 ### Applications (proxy targets)
 
@@ -47,10 +47,10 @@ All routes below require `Authorization: Bearer <access_token>`.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/door/api/v1/applications` | List all registered applications |
-| `GET` | `/door/api/v1/applications/:id` | Get a single application |
-| `POST` | `/door/api/v1/applications` | Register a new application |
-| `DELETE` | `/door/api/v1/applications/:id` | Remove an application |
+| `GET` | `/ward/api/v1/applications` | List all registered applications |
+| `GET` | `/ward/api/v1/applications/:id` | Get a single application |
+| `POST` | `/ward/api/v1/applications` | Register a new application |
+| `DELETE` | `/ward/api/v1/applications/:id` | Remove an application |
 
 ## Token Strategy
 

@@ -1,4 +1,4 @@
-module github.com/ViitoJooj/door
+module github.com/ViitoJooj/ward
 
 go 1.26.1
 

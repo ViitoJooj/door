@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/ViitoJooj/door/internal/domain"
+	"github.com/ViitoJooj/ward/internal/domain"
 )
 
 type SQLite struct {

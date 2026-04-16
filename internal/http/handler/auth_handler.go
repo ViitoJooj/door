@@ -70,8 +70,39 @@ func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 		},
 	}
 
-	res, _ := json.Marshal(output)
+	userIP := ip.GetIP(ctx)
+	user, accessToken, refreshToken, err := h.authService.Login(input.Username, input.Email, input.Password, userIP)
+	if err != nil {
+		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
+		return
+	}
 
+	var accessCookie fasthttp.Cookie
+	accessCookie.SetKey("access_token")
+	accessCookie.SetValue(accessToken)
+	accessCookie.SetHTTPOnly(true)
+	accessCookie.SetPath("/")
+	accessCookie.SetSecure(false)
+
+	var refreshCookie fasthttp.Cookie
+	refreshCookie.SetKey("refresh_token")
+	refreshCookie.SetValue(refreshToken)
+	refreshCookie.SetHTTPOnly(true)
+	refreshCookie.SetPath("/door/api/v1/auth/token")
+	refreshCookie.SetSecure(false)
+
+	ctx.Response.Header.SetCookie(&accessCookie)
+	ctx.Response.Header.SetCookie(&refreshCookie)
+
+	res, _ := json.Marshal(output)
 	ctx.SetStatusCode(fasthttp.StatusCreated)
 	ctx.SetContentType("application/json")
 	ctx.SetBody(res)

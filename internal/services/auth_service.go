@@ -58,76 +58,89 @@ func (s *AuthService) Register(user *domain.User) (*domain.User, error) {
 	return newUser, nil
 }
 
-func (s *AuthService) Login(username string, email string, password string, ip string) (*domain.User, string, error) {
+func (s *AuthService) Login(username string, email string, password string, ip string) (*domain.User, string, string, error) {
 	if len(username) > 1 {
 		user, err := s.userRepo.FindUserByUsername(username)
 		if err != nil {
 			s.logger.Error("failed to find user by username / error: " + err.Error())
-			return nil, "", errors.New("internal error")
+			return nil, "", "", errors.New("internal error")
 		}
 		if user == nil {
 			s.logger.Warn("login attempt with unknown username / username: " + username)
-			return nil, "", errors.New("invalid credentials")
+			return nil, "", "", errors.New("invalid credentials")
 		}
 
 		if !cryptography.CheckPasswordHash(password, user.Password) {
 			s.logger.Warn("login attempt with wrong password / username: " + username)
-			return nil, "", errors.New("invalid credentials")
+			return nil, "", "", errors.New("invalid credentials")
 		}
 
-		token, err := jwtTokens.GenerateToken(user.ID)
+		accessToken, err := jwtTokens.GenerateAccessToken(user.ID)
 		if err != nil {
-			s.logger.Error("failed to generate token / error: " + err.Error())
-			return nil, "", errors.New("internal error")
+			return nil, "", "", errors.New("internal error")
+		}
+
+		refreshToken, err := jwtTokens.GenerateRefreshToken(user.ID)
+		if err != nil {
+			return nil, "", "", errors.New("internal error")
 		}
 
 		textLog := fmt.Sprintf("user logged in / user_id: %d | ip: %s", user.ID, ip)
 		s.logger.Info(textLog)
-		return user, token, nil
+		return user, accessToken, refreshToken, nil
 	} else {
 		user, err := s.userRepo.FindUserByEmail(email)
 		if err != nil {
 			s.logger.Error("failed to find user by email / error: " + err.Error())
-			return nil, "", errors.New("internal error")
+			return nil, "", "", errors.New("internal error")
 		}
 		if user == nil {
 			s.logger.Warn("login attempt with unknown email  email: " + email)
-			return nil, "", errors.New("invalid credentials")
+			return nil, "", "", errors.New("invalid credentials")
 		}
 
 		if !cryptography.CheckPasswordHash(password, user.Password) {
 			s.logger.Warn("login attempt with wrong password / email: " + email)
-			return nil, "", errors.New("invalid credentials")
+			return nil, "", "", errors.New("invalid credentials")
 		}
 
-		token, err := jwtTokens.GenerateToken(user.ID)
+		accessToken, err := jwtTokens.GenerateAccessToken(user.ID)
 		if err != nil {
-			s.logger.Error("failed to generate token / error: " + err.Error())
-			return nil, "", errors.New("internal error")
+			return nil, "", "", errors.New("internal error")
+		}
+
+		refreshToken, err := jwtTokens.GenerateRefreshToken(user.ID)
+		if err != nil {
+			return nil, "", "", errors.New("internal error")
 		}
 
 		textLog := fmt.Sprintf("user logged in / user_id: %d | ip: %s", user.ID, ip)
 		s.logger.Info(textLog)
-		return user, token, nil
+		return user, accessToken, refreshToken, nil
 	}
 }
 
-func (s *AuthService) Token(tokenString string) (*domain.User, error) {
-	token, err := jwtTokens.ValidateToken(tokenString)
+func (s *AuthService) Token(tokenString string, isRefresh bool) (*domain.User, error) {
+	var token *jwt.Token
+	var err error
+
+	if isRefresh {
+		token, err = jwtTokens.ValidateRefreshToken(tokenString)
+	} else {
+		token, err = jwtTokens.ValidateAccessToken(tokenString)
+	}
+
 	if err != nil {
-		s.logger.Warn("invalid or expired token / error: " + err.Error())
-		return nil, errors.New("internal error")
+		return nil, errors.New("invalid token")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		s.logger.Warn("failed to parse token claims")
-		return nil, errors.New("invalid token")
+		return nil, errors.New("invalid token claims")
 	}
 
 	userIDFloat, ok := claims["user_id"].(float64)
 	if !ok {
-		s.logger.Warn("token missing user_id claim")
 		return nil, errors.New("invalid token")
 	}
 
@@ -135,11 +148,9 @@ func (s *AuthService) Token(tokenString string) (*domain.User, error) {
 
 	user, err := s.userRepo.FindUserByID(userID)
 	if err != nil {
-		s.logger.Error("failed to find user by id / error: " + err.Error())
 		return nil, errors.New("internal error")
 	}
 	if user == nil {
-		s.logger.Warn("token references non-existing user")
 		return nil, errors.New("invalid token")
 	}
 

@@ -2,8 +2,6 @@ package middlewares
 
 import (
 	"encoding/json"
-	"log"
-	"strings"
 
 	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
 	"github.com/ViitoJooj/door/pkg/jwtTokens"
@@ -13,12 +11,11 @@ import (
 
 func UserIdMiddleware(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		tokenString := strings.TrimPrefix(string(ctx.Request.Header.Peek("Authorization")), "Bearer ")
-		if tokenString == "" {
-			log.Println("No token.")
+		accessToken := string(ctx.Request.Header.Cookie("access_token"))
+		if accessToken == "" {
 			output := dto_utils.Error{
 				Success: false,
-				Message: "invalid token.",
+				Message: "access token missing",
 			}
 			res, _ := json.Marshal(output)
 			ctx.SetStatusCode(fasthttp.StatusUnauthorized)
@@ -27,12 +24,11 @@ func UserIdMiddleware(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 			return
 		}
 
-		token, err := jwtTokens.ValidateToken(tokenString)
+		token, err := jwtTokens.ValidateAccessToken(accessToken)
 		if err != nil {
-			log.Println(err)
 			output := dto_utils.Error{
 				Success: false,
-				Message: "internal error.",
+				Message: "invalid access token",
 			}
 			res, _ := json.Marshal(output)
 			ctx.SetStatusCode(fasthttp.StatusUnauthorized)
@@ -43,10 +39,9 @@ func UserIdMiddleware(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			log.Println("Invalid token claims.")
 			output := dto_utils.Error{
 				Success: false,
-				Message: "invalid token claims.",
+				Message: "invalid token claims",
 			}
 			res, _ := json.Marshal(output)
 			ctx.SetStatusCode(fasthttp.StatusUnauthorized)
@@ -57,10 +52,9 @@ func UserIdMiddleware(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 		userIdFloat, ok := claims["user_id"].(float64)
 		if !ok {
-			log.Println("user_id not found or invalid type")
 			output := dto_utils.Error{
 				Success: false,
-				Message: "user_id not found or invalid type",
+				Message: "user_id not found",
 			}
 			res, _ := json.Marshal(output)
 			ctx.SetStatusCode(fasthttp.StatusUnauthorized)
@@ -69,9 +63,7 @@ func UserIdMiddleware(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 			return
 		}
 
-		userId := int(userIdFloat)
-
-		ctx.SetUserValue("userId", userId)
+		ctx.SetUserValue("userId", int(userIdFloat))
 		next(ctx)
 	}
 }

@@ -3,13 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"log"
-	"strings"
 
 	"github.com/ViitoJooj/door/internal/domain"
 	"github.com/ViitoJooj/door/internal/http/dtos"
 	dto_utils "github.com/ViitoJooj/door/internal/http/dtos/utils"
 	"github.com/ViitoJooj/door/internal/services"
 	"github.com/ViitoJooj/door/pkg/ip"
+	"github.com/ViitoJooj/door/pkg/jwtTokens"
 	"github.com/valyala/fasthttp"
 )
 
@@ -70,8 +70,39 @@ func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 		},
 	}
 
-	res, _ := json.Marshal(output)
+	userIP := ip.GetIP(ctx)
+	user, accessToken, refreshToken, err := h.authService.Login(input.Username, input.Email, input.Password, userIP)
+	if err != nil {
+		log.Println(err)
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error.",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
+		return
+	}
 
+	var accessCookie fasthttp.Cookie
+	accessCookie.SetKey("access_token")
+	accessCookie.SetValue(accessToken)
+	accessCookie.SetHTTPOnly(true)
+	accessCookie.SetPath("/")
+	accessCookie.SetSecure(false)
+
+	var refreshCookie fasthttp.Cookie
+	refreshCookie.SetKey("refresh_token")
+	refreshCookie.SetValue(refreshToken)
+	refreshCookie.SetHTTPOnly(true)
+	refreshCookie.SetPath("/door/api/v1/auth/token")
+	refreshCookie.SetSecure(false)
+
+	ctx.Response.Header.SetCookie(&accessCookie)
+	ctx.Response.Header.SetCookie(&refreshCookie)
+
+	res, _ := json.Marshal(output)
 	ctx.SetStatusCode(fasthttp.StatusCreated)
 	ctx.SetContentType("application/json")
 	ctx.SetBody(res)
@@ -94,7 +125,7 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	}
 
 	userIP := ip.GetIP(ctx)
-	user, token, err := c.authService.Login(input.Username, input.Email, input.Password, userIP)
+	user, accessToken, refreshToken, err := c.authService.Login(input.Username, input.Email, input.Password, userIP)
 	if err != nil {
 		log.Println(err)
 		output := dto_utils.Error{
@@ -118,8 +149,24 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 			Updated_at: user.Updated_at.String(),
 			Created_at: user.Created_at.String(),
 		},
-		Token: token,
 	}
+
+	var accessCookie fasthttp.Cookie
+	accessCookie.SetKey("access_token")
+	accessCookie.SetValue(accessToken)
+	accessCookie.SetHTTPOnly(true)
+	accessCookie.SetPath("/")
+	accessCookie.SetSecure(false)
+
+	var refreshCookie fasthttp.Cookie
+	refreshCookie.SetKey("refresh_token")
+	refreshCookie.SetValue(refreshToken)
+	refreshCookie.SetHTTPOnly(true)
+	refreshCookie.SetPath("/door/api/v1/auth/token")
+	refreshCookie.SetSecure(false)
+
+	ctx.Response.Header.SetCookie(&accessCookie)
+	ctx.Response.Header.SetCookie(&refreshCookie)
 
 	res, _ := json.Marshal(output)
 	ctx.SetStatusCode(fasthttp.StatusOK)
@@ -128,58 +175,53 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 }
 
 func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
-	authHeader := string(ctx.Request.Header.Peek("Authorization"))
-
-	if authHeader == "" {
-		log.Println("Authorization header not found")
+	refreshToken := string(ctx.Request.Header.Cookie("refresh_token"))
+	if refreshToken == "" {
 		output := dto_utils.Error{
 			Success: false,
-			Message: "Authorization header not found",
+			Message: "refresh token not found",
 		}
 		res, _ := json.Marshal(output)
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
 		ctx.SetContentType("application/json")
 		ctx.SetBody(res)
 		return
 	}
 
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		log.Println("Invalid Authorization format")
-		output := dto_utils.Error{
-			Success: false,
-			Message: "Invalid Authorization format",
-		}
-		res, _ := json.Marshal(output)
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetContentType("application/json")
-		ctx.SetBody(res)
-		return
-	}
-
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-	_, err := c.authService.Token(tokenString)
+	user, err := c.authService.Token(refreshToken, true)
 	if err != nil {
-		log.Println("invalid token.")
 		output := dto_utils.Error{
 			Success: false,
-			Message: "invalid token.",
+			Message: "invalid refresh token",
 		}
 		res, _ := json.Marshal(output)
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
 		ctx.SetContentType("application/json")
 		ctx.SetBody(res)
 		return
 	}
 
-	var cookie fasthttp.Cookie
-	cookie.SetKey("token")
-	cookie.SetValue(tokenString)
-	cookie.SetHTTPOnly(true)
-	cookie.SetPath("/")
-	cookie.SetSecure(false)
+	newAccessToken, err := jwtTokens.GenerateAccessToken(user.ID)
+	if err != nil {
+		output := dto_utils.Error{
+			Success: false,
+			Message: "internal error",
+		}
+		res, _ := json.Marshal(output)
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetContentType("application/json")
+		ctx.SetBody(res)
+		return
+	}
 
-	ctx.Response.Header.SetCookie(&cookie)
+	var accessCookie fasthttp.Cookie
+	accessCookie.SetKey("access_token")
+	accessCookie.SetValue(newAccessToken)
+	accessCookie.SetHTTPOnly(true)
+	accessCookie.SetPath("/")
+	accessCookie.SetSecure(false)
+
+	ctx.Response.Header.SetCookie(&accessCookie)
 
 	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.SetContentType("application/json")
@@ -187,13 +229,20 @@ func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
 }
 
 func (c *AuthHandler) Logout(ctx *fasthttp.RequestCtx) {
-	var cookie fasthttp.Cookie
-	cookie.SetKey("token")
-	cookie.SetValue("")
-	cookie.SetExpire(fasthttp.CookieExpireDelete)
-	cookie.SetPath("/")
+	var accessCookie fasthttp.Cookie
+	accessCookie.SetKey("access_token")
+	accessCookie.SetValue("")
+	accessCookie.SetExpire(fasthttp.CookieExpireDelete)
+	accessCookie.SetPath("/")
 
-	ctx.Response.Header.SetCookie(&cookie)
+	var refreshCookie fasthttp.Cookie
+	refreshCookie.SetKey("refresh_token")
+	refreshCookie.SetValue("")
+	refreshCookie.SetExpire(fasthttp.CookieExpireDelete)
+	refreshCookie.SetPath("/door/api/v1/token")
+
+	ctx.Response.Header.SetCookie(&accessCookie)
+	ctx.Response.Header.SetCookie(&refreshCookie)
 
 	res, _ := json.Marshal(map[string]any{
 		"success": true,

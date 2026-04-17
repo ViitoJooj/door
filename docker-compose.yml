@@ -1,0 +1,12 @@
+services:
+  core-api:
+    build: ./
+    ports: 
+      - "8080:8080"
+
+  viewer:
+    build: ./www
+    ports:
+     - "4200:80"
+    depends_on:
+      - core-api

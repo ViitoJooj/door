@@ -6,6 +6,7 @@ import (
 	"github.com/ViitoJooj/ward/internal/domain"
 	"github.com/ViitoJooj/ward/internal/repository"
 	"github.com/ViitoJooj/ward/pkg/ip"
+	"github.com/ViitoJooj/ward/pkg/ip2location"
 	"github.com/valyala/fasthttp"
 )
 
@@ -25,13 +26,15 @@ func RequestLoggerMiddleware(next fasthttp.RequestHandler, repo repository.Reque
 
 		elapsed := time.Since(start).Milliseconds()
 
+		clientIP := ip.GetIP(ctx)
 		ch <- &domain.RequestLog{
 			Method:         string(ctx.Method()),
 			Path:           string(ctx.Path()),
 			QueryString:    string(ctx.URI().QueryString()),
 			StatusCode:     ctx.Response.StatusCode(),
 			ResponseTimeMs: elapsed,
-			IP:             ip.GetIP(ctx),
+			IP:             clientIP,
+			Country:        ip2location.GetCountry(clientIP),
 			UserAgent:      string(ctx.UserAgent()),
 			Referer:        string(ctx.Referer()),
 			RequestSize:    len(ctx.Request.Body()),

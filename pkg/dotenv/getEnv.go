@@ -10,6 +10,7 @@ import (
 var JwtAccessTokenSecret string
 var JwtRefreshTokenSecret string
 var CorsOriginsMap map[string]struct{}
+var IP2LocationBin string
 
 func GetEnv() {
 	godotenv.Load(".env")
@@ -35,4 +36,6 @@ func GetEnv() {
 			CorsOriginsMap[o] = struct{}{}
 		}
 	}
+
+	IP2LocationBin = os.Getenv("IP2LOCATION_BIN")
 }

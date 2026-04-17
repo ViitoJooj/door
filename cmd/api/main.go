@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	httpx "github.com/ViitoJooj/ward/internal/http"
@@ -10,14 +11,17 @@ import (
 	"github.com/ViitoJooj/ward/internal/services"
 	"github.com/ViitoJooj/ward/pkg/database"
 	"github.com/ViitoJooj/ward/pkg/dotenv"
+	"github.com/ViitoJooj/ward/pkg/ip2location"
 	"github.com/ViitoJooj/ward/pkg/logger"
 	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 )
 
 func main() {
+	fmt.Println("Starting Ward . . .")
 	dotenv.GetEnv()
 	database.Conn()
+	ip2location.Open()
 
 	router := router.New()
 	log := logger.NewLogger(os.Stdout)

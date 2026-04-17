@@ -14,8 +14,10 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.2.1 // indirect
+	github.com/ip2location/ip2location-go/v9 v9.8.0 // indirect
 	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/savsgio/gotils v0.0.0-20240704082632-aef3928b8a38 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	lukechampine.com/uint128 v1.2.0 // indirect
 )

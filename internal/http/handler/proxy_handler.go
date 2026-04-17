@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/ViitoJooj/ward/internal/services"
+	"github.com/ViitoJooj/ward/pkg/ip"
+	"github.com/ViitoJooj/ward/pkg/ip2location"
 	"github.com/valyala/fasthttp"
 )
 
@@ -23,5 +25,8 @@ func (s *ProxyHandler) Proxy(ctx *fasthttp.RequestCtx) {
 	real_path := strings.Replace(proxy_path, "/proxy", "", 1)
 	method := string(ctx.Method())
 
-	log.Printf("REQ %s %s", method, real_path)
+	clientIP := ip.GetIP(ctx)
+	country := ip2location.GetCountry(clientIP)
+
+	log.Printf("REQ %s %s ip=%s country=%s", method, real_path, clientIP, country)
 }

@@ -15,6 +15,17 @@
   padding: 48px;
 }
 
+.brand-watermark {
+  position: absolute;
+  left: 41%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  opacity: 0.09;
+  pointer-events: none;
+  user-select: none;
+}
+
 .brand-logo {
   position: absolute;
   top: 48px;

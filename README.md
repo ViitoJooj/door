@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./Docs/image/banner.png" alt="ward - API Gateway" width="700"/>
+  <img src="./Docs/image/banner.png" alt="ward - API Gateway" width="900"/>
 
   <h1>ward</h1>
   <p>A lightweight, high-performance API Gateway written in Go.</p>

@@ -22,10 +22,14 @@ func main() {
 	dotenv.GetEnv()
 	database.Conn()
 	ip2location.Open()
-
 	router := router.New()
+
 	log := logger.NewLogger(os.Stdout)
-	authRepo, applicationRepo, logRepo := repository.NewSQLiteRepository(database.DB)
+	envRepo, authRepo, applicationRepo, logRepo := repository.NewSQLiteRepository(database.DB)
+
+	//Env
+	envService := services.NewDotEnvService(envRepo)
+	envHandler := handler.NewDotEnvHandler(envService)
 
 	//Auth
 	authService := services.NewAuthService(authRepo, log)
@@ -44,6 +48,7 @@ func main() {
 	requestLogHandler := handler.NewRequestLogHandler(requestLogService)
 
 	//Routers
+	httpx.RegisterEnvRouters(router, envHandler)
 	httpx.RegisterAuthRoutes(router, authHandler)
 	httpx.RegisterApplicationRouters(router, applicationHandler)
 	httpx.RegisterRequestLogRoutes(router, requestLogHandler)

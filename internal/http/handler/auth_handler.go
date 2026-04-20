@@ -108,7 +108,7 @@ func (h *AuthHandler) Register(ctx *fasthttp.RequestCtx) {
 	ctx.SetBody(res)
 }
 
-func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
+func (h *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	var input dtos.LoginInput
 
 	if err := json.Unmarshal(ctx.PostBody(), &input); err != nil {
@@ -125,7 +125,7 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	}
 
 	userIP := ip.GetIP(ctx)
-	user, accessToken, refreshToken, err := c.authService.Login(input.Username, input.Email, input.Password, userIP)
+	user, accessToken, refreshToken, err := h.authService.Login(input.Username, input.Email, input.Password, userIP)
 	if err != nil {
 		log.Println(err)
 		output := dto_utils.Error{
@@ -174,7 +174,7 @@ func (c *AuthHandler) Login(ctx *fasthttp.RequestCtx) {
 	ctx.SetBody(res)
 }
 
-func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
+func (h *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
 	refreshToken := string(ctx.Request.Header.Cookie("refresh_token"))
 	if refreshToken == "" {
 		output := dto_utils.Error{
@@ -188,7 +188,7 @@ func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	user, err := c.authService.Token(refreshToken, true)
+	user, err := h.authService.Token(refreshToken, true)
 	if err != nil {
 		output := dto_utils.Error{
 			Success: false,
@@ -228,7 +228,7 @@ func (c *AuthHandler) Token(ctx *fasthttp.RequestCtx) {
 	ctx.SetBodyString(`{"success":true}`)
 }
 
-func (c *AuthHandler) Logout(ctx *fasthttp.RequestCtx) {
+func (h *AuthHandler) Logout(ctx *fasthttp.RequestCtx) {
 	var accessCookie fasthttp.Cookie
 	accessCookie.SetKey("access_token")
 	accessCookie.SetValue("")

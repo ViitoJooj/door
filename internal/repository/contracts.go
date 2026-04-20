@@ -10,9 +10,9 @@ type SQLite struct {
 	db *sql.DB
 }
 
-func NewSQLiteRepository(db *sql.DB) (UserRepository, ApplicationRepository, RequestLogRepository) {
+func NewSQLiteRepository(db *sql.DB) (DotEnvRepository, UserRepository, ApplicationRepository, RequestLogRepository) {
 	repo := &SQLite{db: db}
-	return repo, repo, repo
+	return repo, repo, repo, repo
 }
 
 type UserRepository interface {
@@ -41,7 +41,7 @@ type RequestLogRepository interface {
 }
 
 type DotEnvRepository interface {
-	FindVar(name string) (string, error)
+	FindVar(id int) (*domain.Env, error)
 	ChangeVar(*domain.Env) error
 	GetAllVars() ([]*domain.Env, error)
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/ViitoJooj/ward/internal/domain"
 )
 
-func (r *SQLite) FindVar(name string) (*domain.Env, error) {
-	row := r.db.QueryRow(`SELECT id, name, value FROM env WHERE var = $1`, name)
+func (r *SQLite) FindVar(id int) (*domain.Env, error) {
+	row := r.db.QueryRow(`SELECT id, name, value FROM env WHERE id = $1`, id)
 	env := &domain.Env{}
 	row.Scan(env.Id, env.Name, env.Value)
 	return env, nil

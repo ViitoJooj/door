@@ -20,7 +20,7 @@ func NewProxyHandler(proxyHandler *services.ProxyService) *ProxyHandler {
 	}
 }
 
-func (s *ProxyHandler) Proxy(ctx *fasthttp.RequestCtx) {
+func (h *ProxyHandler) Proxy(ctx *fasthttp.RequestCtx) {
 	proxy_path := string(ctx.Path())
 	real_path := strings.Replace(proxy_path, "/proxy", "", 1)
 	method := string(ctx.Method())

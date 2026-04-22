@@ -1,15 +1,20 @@
 package ip
 
-import "github.com/valyala/fasthttp"
+import (
+	"strings"
+
+	"github.com/valyala/fasthttp"
+)
 
 func GetIP(ctx *fasthttp.RequestCtx) string {
-	if ip := string(ctx.Request.Header.Peek("X-Real-IP")); ip != "" {
+	if ip := strings.TrimSpace(string(ctx.Request.Header.Peek("X-Real-IP"))); ip != "" {
 		return ip
 	}
-	if forwarded := string(ctx.Request.Header.Peek("X-Forwarded-For")); forwarded != "" {
-		return forwarded
+
+	if forwarded := strings.TrimSpace(string(ctx.Request.Header.Peek("X-Forwarded-For"))); forwarded != "" {
+		parts := strings.Split(forwarded, ",")
+		return strings.TrimSpace(parts[0])
 	}
 
 	return ctx.RemoteIP().String()
-
 }

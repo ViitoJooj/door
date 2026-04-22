@@ -178,6 +178,31 @@ func (r *SQLite) ListApplications() ([]*domain.Application, error) {
 	return applications, rows.Err()
 }
 
+func (r *SQLite) GetRandomApplication() (*domain.Application, error) {
+	row := r.db.QueryRow(`
+		SELECT id, url, country, created_by, updated_at, created_at
+		FROM applications
+		ORDER BY RANDOM()
+		LIMIT 1
+	`)
+
+	application := &domain.Application{}
+
+	err := row.Scan(
+		&application.ID,
+		&application.Url,
+		&application.Country,
+		&application.Created_by,
+		&application.Updated_at,
+		&application.Created_at,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return application, nil
+}
+
 func (r *SQLite) FindApplicationByID(id int) (*domain.Application, error) {
 	application := &domain.Application{}
 
@@ -209,6 +234,29 @@ func (r *SQLite) FindApplicationByCountry(country string) (*domain.Application, 
 		FROM applications
 		WHERE country = ?
 	`, country).Scan(
+		&application.ID,
+		&application.Url,
+		&application.Country,
+		&application.Created_by,
+		&application.Updated_at,
+		&application.Created_at,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	return application, err
+}
+
+func (r *SQLite) FindApplicationByURL(url string) (*domain.Application, error) {
+	application := &domain.Application{}
+
+	err := r.db.QueryRow(`
+		SELECT id, url, country, created_by, updated_at, created_at
+		FROM applications
+		WHERE url = ?
+	`, url).Scan(
 		&application.ID,
 		&application.Url,
 		&application.Country,

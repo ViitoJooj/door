@@ -30,6 +30,7 @@ type ApplicationRepository interface {
 	FindApplicationByID(id int) (*domain.Application, error)
 	FindApplicationByURL(url string) (*domain.Application, error)
 	FindApplicationByCountry(country string) (*domain.Application, error)
+	GetRandomApplication() (*domain.Application, error)
 	ListApplications() ([]*domain.Application, error)
 	UpdateApplication(application *domain.Application) error
 	DeleteApplicationByID(id int) error

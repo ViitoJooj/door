@@ -43,3 +43,10 @@ func (r *SQLite) ChangeVar(env *domain.Env) error {
 
 	return err
 }
+
+func (r *SQLite) ChangeCors(cors *domain.Cors) error {
+	_, err := r.db.Exec(`UPDATE cors SET origin = ? WHERE id = ?`,
+		cors.Origin, cors.Id,
+	)
+	return err
+}

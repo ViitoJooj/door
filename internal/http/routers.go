@@ -33,3 +33,11 @@ func RegisterEnvRouters(r *router.Router, envController *handler.DotEnvHandler) 
 	r.GET("/ward/api/v1/env/{path:*}", middlewares.UserIdMiddleware(envController.GetVar))
 	r.PUT("/ward/api/v1/env/{path:*}", middlewares.UserIdMiddleware(envController.ChangeVar))
 }
+
+func RegisterCorsOriginsRouters(r *router.Router, corsController *handler.CorsHandler) {
+	r.GET("/ward/api/v1/cors/{path:*}", middlewares.UserIdMiddleware(corsController.GetByID))
+	r.GET("/ward/api/v1/cors/", middlewares.UserIdMiddleware(corsController.GetAll))
+	r.POST("/ward/api/v1/cors/", middlewares.UserIdMiddleware(corsController.Create))
+	r.PUT("/ward/api/v1/cors/", middlewares.UserIdMiddleware(corsController.Update))
+	r.DELETE("/ward/api/v1/cors/{path:*}", middlewares.UserIdMiddleware(corsController.DeleteById))
+}

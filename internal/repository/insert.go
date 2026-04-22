@@ -45,3 +45,9 @@ func (r *SQLite) InsertRequestLog(log *domain.RequestLog) error {
 	)
 	return err
 }
+
+func (r *SQLite) CreateCors(cors *domain.Cors) error {
+	_, err := r.db.Exec(`INSERT INTO cors (name, origin) VALUES (?, ?)`,
+		cors.Name, cors.Origin)
+	return err
+}

@@ -3,7 +3,7 @@ POST http://localhost:7171/ward/api/v1/applications
 
 {
     "url": "http://localhost:8080",
-    "country": "brasil"
+    "country": "BR"
 }
 
 #Get all

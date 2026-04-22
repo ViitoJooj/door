@@ -288,3 +288,36 @@ func (r *SQLite) FindApplicationByURL(url string) (*domain.Application, error) {
 
 	return application, err
 }
+
+func (r *SQLite) FindAllCors() ([]*domain.Cors, error) {
+	rows, err := r.db.Query(`SELECT id, origin FROM cors`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var corsList []*domain.Cors
+
+	for rows.Next() {
+		var cors domain.Cors
+		if err := rows.Scan(&cors.Id, &cors.Origin); err != nil {
+			return nil, err
+		}
+		corsList = append(corsList, &cors)
+	}
+
+	return corsList, nil
+}
+
+func (r *SQLite) FindCorsByID(id int) (*domain.Cors, error) {
+	var cors domain.Cors
+
+	err := r.db.QueryRow(`SELECT id, origin FROM cors WHERE id = ?`, id).
+		Scan(&cors.Id, &cors.Origin)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &cors, nil
+}

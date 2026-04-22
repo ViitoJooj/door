@@ -10,7 +10,7 @@ import (
 	"github.com/ViitoJooj/ward/internal/repository"
 	"github.com/ViitoJooj/ward/internal/services"
 	"github.com/ViitoJooj/ward/pkg/database"
-	"github.com/ViitoJooj/ward/pkg/dotenv"
+	initproject "github.com/ViitoJooj/ward/pkg/init_project"
 	"github.com/ViitoJooj/ward/pkg/ip2location"
 	"github.com/ViitoJooj/ward/pkg/logger"
 	"github.com/fasthttp/router"
@@ -19,13 +19,18 @@ import (
 
 func main() {
 	fmt.Println("Starting Ward . . .")
-	dotenv.GetEnv()
+	initproject.Init_project()
+	middlewares.LoadCorsFromDB()
 	database.Conn()
 	ip2location.Open()
 	router := router.New()
 
 	log := logger.NewLogger(os.Stdout)
-	envRepo, authRepo, applicationRepo, logRepo := repository.NewSQLiteRepository(database.DB)
+	envRepo, authRepo, applicationRepo, logRepo, corsRepo := repository.NewSQLiteRepository(database.DB)
+
+	//Cors router
+	corsService := services.NewCorsService(corsRepo, authRepo)
+	corsHandler := handler.NewCorsHandler(corsService)
 
 	//Env
 	envService := services.NewDotEnvService(envRepo)
@@ -53,11 +58,11 @@ func main() {
 	httpx.RegisterApplicationRouters(router, applicationHandler)
 	httpx.RegisterRequestLogRoutes(router, requestLogHandler)
 	httpx.RegisterProxyRoutes(router, proxyHandler)
+	httpx.RegisterCorsOriginsRouters(router, corsHandler)
 
 	//Middelwares
 	handlerWithLog := middlewares.RequestLoggerMiddleware(router.Handler, logRepo)
 	handlerWithCors := middlewares.CorsMiddleware(handlerWithLog)
 
 	fasthttp.ListenAndServe(":7171", handlerWithCors)
-
 }

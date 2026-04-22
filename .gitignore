@@ -1,6 +1,8 @@
 # Segredos
 .env
 */.env
+.masterkey
+*/.masterkey
 
 # Python
 __pycache__/

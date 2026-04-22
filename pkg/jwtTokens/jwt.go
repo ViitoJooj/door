@@ -2,11 +2,27 @@ package jwtTokens
 
 import (
 	"errors"
+	"os"
 	"time"
 
-	"github.com/ViitoJooj/ward/pkg/dotenv"
 	"github.com/golang-jwt/jwt/v4"
 )
+
+func refreshSecret() string {
+	secret := os.Getenv("JWT_REFRESH_TOKEN_SECRET")
+	if secret == "" {
+		panic("JWT_REFRESH_TOKEN_SECRET não definida")
+	}
+	return secret
+}
+
+func accessSecret() string {
+	secret := os.Getenv("JWT_ACCESS_TOKEN_SECRET")
+	if secret == "" {
+		panic("JWT_ACCESS_TOKEN_SECRET não definida")
+	}
+	return secret
+}
 
 func GenerateRefreshToken(userID int) (string, error) {
 	now := time.Now()
@@ -20,7 +36,7 @@ func GenerateRefreshToken(userID int) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(dotenv.JwtRefreshTokenSecret))
+	return token.SignedString([]byte(refreshSecret()))
 }
 
 func ValidateRefreshToken(tokenString string) (*jwt.Token, error) {
@@ -28,7 +44,7 @@ func ValidateRefreshToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return []byte(dotenv.JwtRefreshTokenSecret), nil
+		return []byte(refreshSecret()), nil
 	})
 
 	if err != nil {
@@ -60,7 +76,7 @@ func GenerateAccessToken(userID int) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(dotenv.JwtAccessTokenSecret))
+	return token.SignedString([]byte(accessSecret()))
 }
 
 func ValidateAccessToken(tokenString string) (*jwt.Token, error) {
@@ -68,7 +84,7 @@ func ValidateAccessToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return []byte(dotenv.JwtAccessTokenSecret), nil
+		return []byte(accessSecret()), nil
 	})
 
 	if err != nil {

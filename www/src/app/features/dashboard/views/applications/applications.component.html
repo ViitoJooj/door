@@ -2,17 +2,17 @@
 
   <div class="view__header">
     <div>
-      <h2 class="view__title">Aplicações</h2>
-      <p class="view__subtitle">Serviços registrados no gateway.</p>
+      <h2 class="view__title">Applications</h2>
+      <p class="view__subtitle">Services registered on the gateway.</p>
     </div>
     <button class="btn-primary" (click)="toggleCreateForm()" type="button">
-      {{ showCreateForm() ? 'Cancelar' : 'Nova aplicação' }}
+      {{ showCreateForm() ? 'Cancel' : 'New application' }}
     </button>
   </div>
 
   @if (showCreateForm()) {
     <div class="create-form">
-      <p class="create-form__title">Nova aplicação</p>
+      <p class="create-form__title">New application</p>
 
       @if (createError()) {
         <p class="error-message">{{ createError() }}</p>
@@ -30,7 +30,7 @@
             />
           </div>
           <div class="field">
-            <label class="field__label">País</label>
+            <label class="field__label">Country</label>
             <input
               class="field__input"
               type="text"
@@ -40,7 +40,7 @@
           </div>
         </div>
         <button class="btn-primary" type="submit" [disabled]="creating()">
-          {{ creating() ? 'Criando...' : 'Criar' }}
+          {{ creating() ? 'Creating...' : 'To create' }}
         </button>
       </form>
     </div>
@@ -51,11 +51,11 @@
   }
 
   @if (loading()) {
-    <p class="state-message">Carregando...</p>
+    <p class="state-message">Loading...</p>
   } @else if (applications().length === 0) {
     <div class="empty-state">
-      <p class="empty-state__text">Nenhuma aplicação registrada ainda.</p>
-      <p class="empty-state__hint">Clique em "Nova aplicação" para começar.</p>
+      <p class="empty-state__text">No applications registered yet.</p>
+      <p class="empty-state__hint">Click on "New application" to begin.</p>
     </div>
   } @else {
     <div class="app-list">
@@ -64,7 +64,7 @@
           <div class="app-card__info">
             <span class="app-card__url">{{ app.Url }}</span>
             <span class="app-card__meta">
-              {{ app.Country }} &middot; criado em {{ app.Created_at | date: 'dd/MM/yyyy' }}
+              {{ app.Country }} &middot; created in {{ app.Created_at | date: 'dd/MM/yyyy' }}
             </span>
           </div>
           <button
@@ -73,7 +73,7 @@
             [disabled]="deletingId() === app.ID"
             (click)="onDelete(app.ID)"
           >
-            {{ deletingId() === app.ID ? 'Removendo...' : 'Remover' }}
+            {{ deletingId() === app.ID ? 'Removing...' : 'Remove' }}
           </button>
         </div>
       }

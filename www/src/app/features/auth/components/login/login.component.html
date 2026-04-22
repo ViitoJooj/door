@@ -5,8 +5,8 @@
     <span class="brand-logo">ward.</span>
     <div class="brand-content">
       <p class="brand-tagline">
-        Gateway de proteção<br>
-        <span class="brand-tagline--muted">para suas APIs.</span>
+        Protection gateway<br>
+        <span class="brand-tagline--muted">for your APIs.</span>
       </p>
     </div>
     <span class="brand-footer">self-hosted &amp; open source</span>
@@ -22,7 +22,7 @@
           (click)="setTab('login')"
           type="button"
         >
-          Entrar
+          Log In
         </button>
         <button
           class="tab"
@@ -30,7 +30,7 @@
           (click)="setTab('register')"
           type="button"
         >
-          Criar conta
+          Sign Up
         </button>
       </div>
 
@@ -41,7 +41,7 @@
       @if (activeTab() === 'login') {
         <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form">
           <div class="field">
-            <label class="field__label">Username ou e-mail</label>
+            <label class="field__label">Username or e-mail</label>
             <input
               class="field__input"
               type="text"
@@ -51,7 +51,7 @@
           </div>
 
           <div class="field">
-            <label class="field__label">Senha</label>
+            <label class="field__label">Password</label>
             <input
               class="field__input"
               type="password"
@@ -61,12 +61,12 @@
           </div>
 
           <button class="btn-primary" type="submit" [disabled]="loading()">
-            {{ loading() ? 'Entrando...' : 'Entrar' }}
+            {{ loading() ? 'entering...' : 'Log In' }}
           </button>
 
           <p class="form-link">
-            Não tem uma conta?
-            <button type="button" class="link" (click)="setTab('register')">Criar agora</button>
+            Not have account?
+            <button type="button" class="link" (click)="setTab('register')">Create Now</button>
           </p>
         </form>
       }
@@ -74,7 +74,7 @@
       @if (activeTab() === 'register') {
         <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="form">
           <div class="field">
-            <label class="field__label">Nome de usuário</label>
+            <label class="field__label">Username</label>
             <input
               class="field__input"
               type="text"
@@ -94,7 +94,7 @@
           </div>
 
           <div class="field">
-            <label class="field__label">Senha</label>
+            <label class="field__label">Password</label>
             <input
               class="field__input"
               type="password"
@@ -104,12 +104,12 @@
           </div>
 
           <button class="btn-primary" type="submit" [disabled]="loading()">
-            {{ loading() ? 'Criando...' : 'Criar conta' }}
+            {{ loading() ? 'Creating...' : 'Create Account' }}
           </button>
 
           <p class="form-link">
-            Já tem uma conta?
-            <button type="button" class="link" (click)="setTab('login')">Entrar</button>
+            Do you have account?
+            <button type="button" class="link" (click)="setTab('login')">Log In</button>
           </p>
         </form>
       }

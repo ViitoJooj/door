@@ -3,32 +3,32 @@
   <div class="view__header">
     <div>
       <h2 class="view__title">Logs</h2>
-      <p class="view__subtitle">Requisições em tempo real &mdash; atualiza a cada 3s.</p>
+      <p class="view__subtitle">Real-time requests &mdash; updates every 3s.</p>
     </div>
     <span class="live-badge">
       <span class="live-badge__dot"></span>
-      ao vivo
+      live
     </span>
   </div>
 
   @if (loading()) {
-    <p class="state-message">Carregando...</p>
+    <p class="state-message">Loading...</p>
   } @else if (logs().length === 0) {
     <div class="empty-state">
-      <p class="empty-state__text">Nenhuma requisição registrada ainda.</p>
-      <p class="empty-state__hint">Faça uma requisição pelo gateway para vê-la aqui.</p>
+      <p class="empty-state__text">No requests registered yet.</p>
+<p class="empty-state__hint">Make a request through the gateway to see it here.</p>
     </div>
   } @else {
     <div class="log-table-wrapper">
       <table class="log-table">
         <thead>
           <tr>
-            <th>Método</th>
+            <th>Method</th>
             <th>Status</th>
-            <th>Caminho</th>
+            <th>Path</th>
             <th>IP</th>
-            <th>Tempo</th>
-            <th>Quando</th>
+            <th>Time</th>
+            <th>When</th>
           </tr>
         </thead>
         <tbody>

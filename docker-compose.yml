@@ -1,11 +1,15 @@
 services:
   core-api:
-    build: ./
+    build:
+      context: .
+      dockerfile: ./docker/core-api.Dockerfile
     ports: 
-      - "8080:8080"
+      - "7171:7171"
 
   viewer:
-    build: ./www
+    build:
+      context: .
+      dockerfile: ./docker/viewer.Dockerfile
     ports:
      - "4200:80"
     depends_on:

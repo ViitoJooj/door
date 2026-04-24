@@ -1,4 +1,4 @@
-package initproject
+package initializer
 
 import (
 	"crypto/rand"

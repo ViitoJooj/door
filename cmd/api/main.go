@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	httpx "github.com/ViitoJooj/ward/internal/http"
 	"github.com/ViitoJooj/ward/internal/http/handler"
@@ -10,7 +12,7 @@ import (
 	"github.com/ViitoJooj/ward/internal/repository"
 	"github.com/ViitoJooj/ward/internal/services"
 	"github.com/ViitoJooj/ward/pkg/database"
-	initproject "github.com/ViitoJooj/ward/pkg/init_project"
+	"github.com/ViitoJooj/ward/pkg/initializer"
 	"github.com/ViitoJooj/ward/pkg/ip2location"
 	"github.com/ViitoJooj/ward/pkg/logger"
 	"github.com/fasthttp/router"
@@ -18,7 +20,7 @@ import (
 )
 
 func main() {
-	initproject.Init_project()
+	initializer.Init_project()
 	database.Conn()
 	middlewares.LoadCorsFromDB()
 	ip2location.Open()
@@ -68,6 +70,10 @@ func main() {
 	handlerWithLog := middlewares.RequestLoggerMiddleware(router.Handler, logRepo)
 	handlerWithCors := middlewares.CorsMiddleware(handlerWithLog)
 
-	log.Println("Ward running on port: 7171")
-	fasthttp.ListenAndServe(":7171", handlerWithCors)
+	port := initializer.EnsureAppPort(database.DB)
+	os.Setenv("APP_PORT", strconv.Itoa(port))
+	address := fmt.Sprintf(":%d", port)
+
+	log.Printf("Ward running on port: %d", port)
+	fasthttp.ListenAndServe(address, handlerWithCors)
 }

@@ -4,17 +4,34 @@ import (
 	"database/sql"
 
 	"github.com/ViitoJooj/ward/internal/domain"
+	"github.com/ViitoJooj/ward/pkg/initializer"
 )
 
 func (r *SQLite) FindVar(id int) (*domain.Env, error) {
-	row := r.db.QueryRow(`SELECT id, name, value FROM env WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, name, value FROM env WHERE id = ?`, id)
 	env := &domain.Env{}
-	row.Scan(env.Id, env.Name, env.Value)
+	err := row.Scan(&env.Id, &env.Name, &env.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	if !initializer.IsMasterKeyVar(env.Name) {
+		value, err := initializer.DecryptValue(env.Value)
+		if err != nil {
+			return nil, err
+		}
+		env.Value = value
+	}
+
 	return env, nil
 }
 
 func (r *SQLite) GetAllVars() ([]*domain.Env, error) {
-	rows, err := r.db.Query(`SELECT * FROM env`)
+	rows, err := r.db.Query(`
+		SELECT id, name, value
+		FROM env
+		ORDER BY CASE WHEN name = 'MASTER_KEY' THEN 0 ELSE 1 END, id
+	`)
 	if err != nil {
 		return nil, err
 	}
@@ -31,6 +48,14 @@ func (r *SQLite) GetAllVars() ([]*domain.Env, error) {
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if !initializer.IsMasterKeyVar(env.Name) {
+			value, decErr := initializer.DecryptValue(env.Value)
+			if decErr != nil {
+				return nil, decErr
+			}
+			env.Value = value
 		}
 
 		envs = append(envs, env)

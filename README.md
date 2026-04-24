@@ -1,7 +1,3 @@
-<div align=center>
-  <a href="./Docs/README-PT-BR.md">PT-BR</a>
-</div>
-
 <div align="center">
   <img src="./Docs/image/banner.png" alt="ward - API Gateway" width="900"/>
 

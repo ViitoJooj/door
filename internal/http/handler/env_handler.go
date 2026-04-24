@@ -10,6 +10,7 @@ import (
 	"github.com/ViitoJooj/ward/internal/http/dtos"
 	dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
 	"github.com/ViitoJooj/ward/internal/services"
+	"github.com/ViitoJooj/ward/pkg/initializer"
 	"github.com/valyala/fasthttp"
 )
 
@@ -69,10 +70,10 @@ func (h *DotEnvHandler) ChangeVar(ctx *fasthttp.RequestCtx) {
 
 	err := h.dotEnvService.ChangeVar(env)
 	if err != nil {
-		log.Println("internal error.")
+		log.Println(err)
 		output := dto_utils.Error{
 			Success: false,
-			Message: "internal error.",
+			Message: err.Error(),
 		}
 		res, _ := json.Marshal(output)
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
@@ -103,6 +104,21 @@ func (h *DotEnvHandler) ChangeVar(ctx *fasthttp.RequestCtx) {
 			Name:  data.Name,
 			Value: data.Value,
 		},
+	}
+
+	if initializer.IsAppPortVar(data.Name) {
+		if err := initializer.RestartCurrentProcess(); err != nil {
+			log.Println(err)
+			errorOutput := dto_utils.Error{
+				Success: false,
+				Message: "port updated, but restart failed.",
+			}
+			errorRes, _ := json.Marshal(errorOutput)
+			ctx.SetStatusCode(fasthttp.StatusBadGateway)
+			ctx.SetContentType("application/json")
+			ctx.SetBody(errorRes)
+			return
+		}
 	}
 
 	res, _ := json.Marshal(output)

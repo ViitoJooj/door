@@ -16,6 +16,7 @@ dist
 */dist
 node_modules
 */node_modules
+.angular
 
 # Go
 *.exe

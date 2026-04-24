@@ -101,6 +101,9 @@
               formControlName="password"
               placeholder="••••••••"
             />
+            @if (registerForm.get('password')?.invalid && registerForm.get('password')?.dirty) {
+              <span class="field__error">Password must be at least 8 characters.</span>
+            }
           </div>
 
           <button class="btn-primary" type="submit" [disabled]="loading()">

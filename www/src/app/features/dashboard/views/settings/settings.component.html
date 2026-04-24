@@ -1,0 +1,183 @@
+<div class="view">
+
+  <div class="view__header">
+    <div>
+      <h2 class="view__title">Settings</h2>
+      <p class="view__subtitle">Environment variables and user management.</p>
+    </div>
+  </div>
+
+  <div class="settings-tabs">
+    <button
+      class="settings-tab"
+      [class.settings-tab--active]="activeTab() === 'env'"
+      (click)="setTab('env')"
+      type="button"
+    >
+      Environment
+    </button>
+    @if (isAdmin) {
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeTab() === 'users'"
+        (click)="setTab('users')"
+        type="button"
+      >
+        Users
+      </button>
+    }
+  </div>
+
+  @if (activeTab() === 'env') {
+    @if (envLoading()) {
+      <p class="state-message">Loading...</p>
+    } @else if (envError()) {
+      <p class="error-message">{{ envError() }}</p>
+    } @else if (envVars().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No environment variables found.</p>
+        <p class="empty-state__hint">Variables configured in the .env file will appear here.</p>
+      </div>
+    } @else {
+      <div class="env-list">
+        @for (env of envVars(); track env.Id) {
+          <div class="env-row">
+            <span class="env-row__name">{{ env.Name }}</span>
+            <div class="env-row__right">
+              @if (editingId() !== env.Id) {
+                <span class="env-row__value">{{ env.Value || '—' }}</span>
+                <button class="btn-ghost" (click)="startEdit(env)" type="button">Edit</button>
+              } @else {
+                <input
+                  class="field__input env-row__input"
+                  type="text"
+                  [value]="editValue()"
+                  (input)="onEditInput($event)"
+                  (keyup.enter)="saveEdit(env)"
+                  (keyup.escape)="cancelEdit()"
+                />
+                <button
+                  class="btn-primary btn-small"
+                  (click)="saveEdit(env)"
+                  [disabled]="savingId() === env.Id"
+                  type="button"
+                >
+                  {{ savingId() === env.Id ? 'Saving...' : 'Save' }}
+                </button>
+                <button class="btn-ghost btn-small" (click)="cancelEdit()" type="button">Cancel</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'users' && isAdmin) {
+    <div class="users-header">
+      <button class="btn-primary" (click)="toggleCreateUser()" type="button">
+        {{ showCreateUser() ? 'Cancel' : 'New user' }}
+      </button>
+    </div>
+
+    @if (showCreateUser()) {
+      <div class="create-form">
+        <p class="create-form__title">New user</p>
+
+        @if (createError()) {
+          <p class="error-message">{{ createError() }}</p>
+        }
+
+        <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="form">
+          <div class="form__row">
+            <div class="field">
+              <label class="field__label">Username</label>
+              <input class="field__input" type="text" formControlName="username" placeholder="username" />
+            </div>
+            <div class="field">
+              <label class="field__label">Email</label>
+              <input class="field__input" type="email" formControlName="email" placeholder="email@example.com" />
+            </div>
+            <div class="field field--small">
+              <label class="field__label">Role</label>
+              <select class="field__input" formControlName="role">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" type="submit" [disabled]="creating()">
+            {{ creating() ? 'Creating...' : 'Create' }}
+          </button>
+        </form>
+      </div>
+    }
+
+    @if (tempPasswordData()) {
+      <div class="temp-password-box">
+        <div class="temp-password-box__content">
+          <span class="temp-password-box__label">
+            User <strong>{{ tempPasswordData()!.username }}</strong> created. Temporary password:
+          </span>
+          <code class="temp-password-box__code">{{ tempPasswordData()!.password }}</code>
+        </div>
+        <button class="btn-ghost btn-small" (click)="dismissTempPassword()" type="button">Dismiss</button>
+      </div>
+    }
+
+    @if (usersError()) {
+      <p class="error-message">{{ usersError() }}</p>
+    }
+
+    @if (usersLoading()) {
+      <p class="state-message">Loading...</p>
+    } @else if (users().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No users found.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr class="table-row">
+                <td class="table-row__primary">{{ user.username }}</td>
+                <td class="table-row__secondary">{{ user.email }}</td>
+                <td>
+                  <span [class]="'role-badge role-badge--' + user.role">{{ user.role }}</span>
+                </td>
+                <td>
+                  <span [class]="'status-badge status-badge--' + (user.active ? 'active' : 'inactive')">
+                    {{ user.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="table-row__secondary">{{ user.created_at | date: 'dd/MM/yyyy' }}</td>
+                <td class="table-row__actions">
+                  <button
+                    class="btn-danger btn-small"
+                    type="button"
+                    [disabled]="deletingId() === user.id"
+                    (click)="onDelete(user.id)"
+                  >
+                    {{ deletingId() === user.id ? 'Removing...' : 'Remove' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+</div>

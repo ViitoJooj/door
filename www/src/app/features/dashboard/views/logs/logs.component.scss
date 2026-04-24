@@ -9,7 +9,7 @@
 .view {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
   padding: 48px;
   flex: 1;
   min-height: 0;
@@ -24,15 +24,15 @@
 }
 
 .view__title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   letter-spacing: -0.03em;
-  color: #f0f0f0;
+  color: #ffffff;
 }
 
 .view__subtitle {
-  font-size: 12px;
-  color: #505058;
+  font-size: 13px;
+  color: #444444;
   margin-top: 4px;
 }
 
@@ -40,29 +40,32 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  color: #505058;
-  letter-spacing: 0.05em;
-  padding-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #444444;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-top: 4px;
 }
 
 .live-badge__dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #4caf6e;
+  background-color: #9EFF00;
+  box-shadow: 0 0 6px rgba(158, 255, 0, 0.5);
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(158, 255, 0, 0.5); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px rgba(158, 255, 0, 0.1); }
 }
 
 .log-table-wrapper {
   overflow-x: auto;
-  border: 0.5px solid #1e1e22;
-  border-radius: 4px;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
 }
 
 .log-table {
@@ -71,24 +74,24 @@
   font-size: 12px;
 
   thead tr {
-    border-bottom: 0.5px solid #1e1e22;
+    border-bottom: 1px solid #1e1e1e;
   }
 
   th {
-    padding: 10px 16px;
+    padding: 12px 16px;
     text-align: left;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #505058;
+    color: #2a2a2a;
     white-space: nowrap;
-    background-color: #111114;
+    background-color: #111111;
   }
 }
 
 .log-row {
-  border-bottom: 0.5px solid #1a1a1e;
+  border-bottom: 1px solid #141414;
   transition: background-color 0.1s;
 
   &:last-child {
@@ -96,12 +99,12 @@
   }
 
   &:hover {
-    background-color: #111114;
+    background-color: #111111;
   }
 
   td {
-    padding: 10px 16px;
-    color: #f0f0f0;
+    padding: 11px 16px;
+    color: #ffffff;
     vertical-align: middle;
     white-space: nowrap;
   }
@@ -114,67 +117,67 @@
   white-space: nowrap !important;
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 11px;
+  color: #aaaaaa !important;
 }
 
 .log-row__query {
-  color: #505058;
+  color: #333333;
 }
 
 .log-row__secondary {
-  color: #505058 !important;
+  color: #444444 !important;
 }
 
-// método badges
 .method {
   display: inline-block;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 2px 7px;
+  border-radius: 4px;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   font-family: 'SF Mono', 'Fira Code', monospace;
 
-  &--get    { background-color: #0e1e30; color: #5a9fd4; }
-  &--post   { background-color: #0e2018; color: #52b788; }
-  &--put    { background-color: #201a08; color: #e0a84c; }
-  &--patch  { background-color: #1a1030; color: #9b8cff; }
-  &--delete { background-color: #200e0e; color: #e05a5a; }
+  &--get    { background-color: #0a1c2e; color: #5a9fd4; }
+  &--post   { background-color: #0a1e16; color: #52b788; }
+  &--put    { background-color: #1e1806; color: #e0a84c; }
+  &--patch  { background-color: #18102e; color: #9b8cff; }
+  &--delete { background-color: #1e0a0a; color: #ff4444; }
 }
 
-// status code badges
 .status {
   display: inline-block;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 2px 7px;
+  border-radius: 4px;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   font-family: 'SF Mono', 'Fira Code', monospace;
 
-  &--2xx { background-color: #0e2018; color: #52b788; }
-  &--3xx { background-color: #0e1e30; color: #5a9fd4; }
-  &--4xx { background-color: #201a08; color: #e0a84c; }
-  &--5xx { background-color: #200e0e; color: #e05a5a; }
+  &--2xx { background-color: #0a1e16; color: #52b788; }
+  &--3xx { background-color: #0a1c2e; color: #5a9fd4; }
+  &--4xx { background-color: #1e1806; color: #e0a84c; }
+  &--5xx { background-color: #1e0a0a; color: #ff4444; }
 }
 
 .state-message {
   font-size: 13px;
-  color: #505058;
+  color: #444444;
 }
 
 .empty-state {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 48px 0;
+  gap: 6px;
+  padding: 64px 0;
 }
 
 .empty-state__text {
-  font-size: 13px;
-  color: #505058;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
 }
 
 .empty-state__hint {
-  font-size: 12px;
-  color: #303036;
+  font-size: 13px;
+  color: #222222;
 }

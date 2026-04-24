@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -32,7 +33,7 @@ export class LoginComponent {
     this.registerForm = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
@@ -74,13 +75,15 @@ export class LoginComponent {
       next: () => {
         this.loading.set(false);
         this.registerForm.reset();
-        // backend não retorna token no cadastro — redireciona para o login
-        this.setTab('login');
-        this.errorMessage.set(null);
+        this.router.navigate(['/dashboard']);
       },
-      error: () => {
+      error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set('Erro ao criar conta. Tente novamente.');
+        if (err instanceof HttpErrorResponse && err.status === 403) {
+          this.errorMessage.set('Registration is disabled. Ask an admin to create your account.');
+        } else {
+          this.errorMessage.set('Error creating account. Please try again.');
+        }
       }
     });
   }

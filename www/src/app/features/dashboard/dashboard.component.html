@@ -20,6 +20,14 @@
       >
         Logs
       </button>
+      <button
+        class="nav-item"
+        [class.nav-item--active]="activeView() === 'settings'"
+        (click)="setView('settings')"
+        type="button"
+      >
+        Settings
+      </button>
     </nav>
 
     <button class="sidebar__logout" (click)="logout()" type="button">
@@ -33,6 +41,9 @@
     }
     @if (activeView() === 'logs') {
       <app-logs />
+    }
+    @if (activeView() === 'settings') {
+      <app-settings />
     }
   </main>
 

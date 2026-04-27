@@ -397,3 +397,220 @@ func (r *SQLite) FindCorsByID(id int) (*domain.Cors, error) {
 
 	return &cors, nil
 }
+
+func (r *SQLite) GetRateLimitSettings() (*domain.RateLimitSettings, error) {
+	settings := &domain.RateLimitSettings{}
+	var progressiveEnabled int
+
+	err := r.db.QueryRow(`
+		SELECT id, requests_per_second, burst, progressive_enabled, updated_at, created_at
+		FROM rate_limit_settings
+		WHERE id = 1
+	`).Scan(
+		&settings.ID,
+		&settings.RequestsPerSecond,
+		&settings.Burst,
+		&progressiveEnabled,
+		&settings.UpdatedAt,
+		&settings.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	settings.Progressive = progressiveEnabled == 1
+
+	return settings, nil
+}
+
+func (r *SQLite) ListWhitelistedIPs() ([]*domain.IPAccessEntry, error) {
+	rows, err := r.db.Query(`
+		SELECT id, ip, created_by, updated_by, created_at, updated_at
+		FROM ip_whitelist
+		ORDER BY id DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	entries := make([]*domain.IPAccessEntry, 0)
+	for rows.Next() {
+		entry := &domain.IPAccessEntry{}
+		if err := rows.Scan(
+			&entry.ID,
+			&entry.IP,
+			&entry.CreatedBy,
+			&entry.UpdatedBy,
+			&entry.CreatedAt,
+			&entry.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		entries = append(entries, entry)
+	}
+	return entries, rows.Err()
+}
+
+func (r *SQLite) FindWhitelistedIPByID(id int) (*domain.IPAccessEntry, error) {
+	entry := &domain.IPAccessEntry{}
+	err := r.db.QueryRow(`
+		SELECT id, ip, created_by, updated_by, created_at, updated_at
+		FROM ip_whitelist
+		WHERE id = ?
+	`, id).Scan(
+		&entry.ID,
+		&entry.IP,
+		&entry.CreatedBy,
+		&entry.UpdatedBy,
+		&entry.CreatedAt,
+		&entry.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return entry, nil
+}
+
+func (r *SQLite) ListBlacklistedIPs() ([]*domain.IPAccessEntry, error) {
+	rows, err := r.db.Query(`
+		SELECT id, ip, created_by, updated_by, created_at, updated_at
+		FROM ip_blacklist
+		ORDER BY id DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	entries := make([]*domain.IPAccessEntry, 0)
+	for rows.Next() {
+		entry := &domain.IPAccessEntry{}
+		if err := rows.Scan(
+			&entry.ID,
+			&entry.IP,
+			&entry.CreatedBy,
+			&entry.UpdatedBy,
+			&entry.CreatedAt,
+			&entry.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		entries = append(entries, entry)
+	}
+	return entries, rows.Err()
+}
+
+func (r *SQLite) FindBlacklistedIPByID(id int) (*domain.IPAccessEntry, error) {
+	entry := &domain.IPAccessEntry{}
+	err := r.db.QueryRow(`
+		SELECT id, ip, created_by, updated_by, created_at, updated_at
+		FROM ip_blacklist
+		WHERE id = ?
+	`, id).Scan(
+		&entry.ID,
+		&entry.IP,
+		&entry.CreatedBy,
+		&entry.UpdatedBy,
+		&entry.CreatedAt,
+		&entry.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return entry, nil
+}
+
+func (r *SQLite) GetProtocolSettings() (*domain.ProtocolSettings, error) {
+	settings := &domain.ProtocolSettings{}
+
+	err := r.db.QueryRow(`
+		SELECT id, allowed_protocol, apply_scope, updated_at, created_at
+		FROM protocol_settings
+		WHERE id = 1
+	`).Scan(
+		&settings.ID,
+		&settings.AllowedProtocol,
+		&settings.ApplyScope,
+		&settings.UpdatedAt,
+		&settings.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return settings, nil
+}
+
+func (r *SQLite) ListSpecialRouteRules(routeType string) ([]*domain.SpecialRouteRule, error) {
+	rows, err := r.db.Query(`
+		SELECT id, route_type, path, max_distinct_requests, window_seconds, ban_seconds, enabled, created_by, updated_by, created_at, updated_at
+		FROM special_route_rules
+		WHERE route_type = ?
+		ORDER BY id DESC
+	`, routeType)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	rules := make([]*domain.SpecialRouteRule, 0)
+	for rows.Next() {
+		rule := &domain.SpecialRouteRule{}
+		var enabledInt int
+		if err := rows.Scan(
+			&rule.ID,
+			&rule.RouteType,
+			&rule.Path,
+			&rule.MaxDistinctRequests,
+			&rule.WindowSeconds,
+			&rule.BanSeconds,
+			&enabledInt,
+			&rule.CreatedBy,
+			&rule.UpdatedBy,
+			&rule.CreatedAt,
+			&rule.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		rule.Enabled = enabledInt == 1
+		rules = append(rules, rule)
+	}
+
+	return rules, rows.Err()
+}
+
+func (r *SQLite) FindSpecialRouteRuleByID(id int) (*domain.SpecialRouteRule, error) {
+	rule := &domain.SpecialRouteRule{}
+	var enabledInt int
+	err := r.db.QueryRow(`
+		SELECT id, route_type, path, max_distinct_requests, window_seconds, ban_seconds, enabled, created_by, updated_by, created_at, updated_at
+		FROM special_route_rules
+		WHERE id = ?
+	`, id).Scan(
+		&rule.ID,
+		&rule.RouteType,
+		&rule.Path,
+		&rule.MaxDistinctRequests,
+		&rule.WindowSeconds,
+		&rule.BanSeconds,
+		&enabledInt,
+		&rule.CreatedBy,
+		&rule.UpdatedBy,
+		&rule.CreatedAt,
+		&rule.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	rule.Enabled = enabledInt == 1
+	return rule, nil
+}

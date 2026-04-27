@@ -32,6 +32,22 @@ tags:
     description: |
       EN: Catch-all fallback route.
       PT-BR: Rota coringa de fallback.
+  - name: Rate Limit
+    description: |
+      EN: Global rate limit settings.
+      PT-BR: Configurações globais de rate limit.
+  - name: IP Access
+    description: |
+      EN: IP whitelist/blacklist management.
+      PT-BR: Gerenciamento de whitelist/blacklist de IP.
+  - name: Protocol
+    description: |
+      EN: Allowed protocol mode settings.
+      PT-BR: Configuração de protocolo permitido.
+  - name: Special Routes
+    description: |
+      EN: Per-route anti-abuse rules for login/register endpoints.
+      PT-BR: Regras antiabuso por rota para endpoints de login/cadastro.
 
 components:
   securitySchemes:
@@ -419,6 +435,256 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RequestLogData'
+
+    RateLimitInput:
+      type: object
+      required: [requests_per_second, burst, progressive_rate_limit]
+      properties:
+        requests_per_second:
+          type: number
+          format: double
+          example: 10
+        burst:
+          type: integer
+          example: 20
+        progressive_rate_limit:
+          type: boolean
+          example: true
+
+    RateLimitData:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        requests_per_second:
+          type: number
+          format: double
+          example: 10
+        burst:
+          type: integer
+          example: 20
+        progressive_rate_limit:
+          type: boolean
+          example: true
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+
+    RateLimitOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ok.
+        data:
+          $ref: '#/components/schemas/RateLimitData'
+
+    IPAccessInput:
+      type: object
+      required: [ip]
+      properties:
+        ip:
+          type: string
+          example: 203.0.113.10
+
+    IPAccessData:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        ip:
+          type: string
+          example: 203.0.113.10
+        created_by:
+          type: integer
+          example: 1
+        updated_by:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+
+    IPAccessOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: whitelist ip created.
+        data:
+          $ref: '#/components/schemas/IPAccessData'
+
+    IPAccessListOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ok.
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPAccessData'
+
+    ProtocolSettingsInput:
+      type: object
+      required: [allowed_protocol, apply_scope]
+      properties:
+        allowed_protocol:
+          type: string
+          enum: [http, https, both]
+          example: both
+        apply_scope:
+          type: string
+          enum: [all, external]
+          example: external
+
+    ProtocolSettingsData:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        allowed_protocol:
+          type: string
+          enum: [http, https, both]
+          example: both
+        apply_scope:
+          type: string
+          enum: [all, external]
+          example: all
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+
+    ProtocolSettingsOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: protocol mode updated.
+        data:
+          $ref: '#/components/schemas/ProtocolSettingsData'
+
+    SpecialRouteInput:
+      type: object
+      required: [path, max_distinct_requests, window_seconds, ban_seconds, enabled]
+      properties:
+        path:
+          type: string
+          example: /ward/api/v1/auth/login
+        max_distinct_requests:
+          type: integer
+          example: 10
+        window_seconds:
+          type: integer
+          example: 60
+        ban_seconds:
+          type: integer
+          example: 300
+        enabled:
+          type: boolean
+          example: true
+
+    SpecialRouteData:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        route_type:
+          type: string
+          enum: [login, register]
+          example: login
+        path:
+          type: string
+          example: /ward/api/v1/auth/login
+        max_distinct_requests:
+          type: integer
+          example: 10
+        window_seconds:
+          type: integer
+          example: 60
+        ban_seconds:
+          type: integer
+          example: 300
+        enabled:
+          type: boolean
+          example: true
+        created_by:
+          type: integer
+          example: 1
+        updated_by:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-04-22T15:00:00Z"
+
+    SpecialRouteOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: special route created.
+        data:
+          $ref: '#/components/schemas/SpecialRouteData'
+
+    SpecialRouteListOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ok.
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpecialRouteData'
 
 paths:
   /ward/api/v1/auth/register:
@@ -996,6 +1262,842 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /ward/api/v1/rate-limit:
+    get:
+      tags: [Rate Limit]
+      summary: Get rate limit settings / Buscar configuração de rate limit
+      description: |
+        **EN:** Returns current global rate limit settings. Requires `access_token` with `role=admin`.
+        **PT-BR:** Retorna as configurações globais de rate limit. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Settings fetched / Configuração obtida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitOutput'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags: [Rate Limit]
+      summary: Update rate limit settings / Atualizar configuração de rate limit
+      description: |
+        **EN:** Updates global rate limit settings. Requires `access_token` with `role=admin`.
+        **PT-BR:** Atualiza as configurações globais de rate limit. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateLimitInput'
+      responses:
+        '200':
+          description: Settings updated / Configuração atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitOutput'
+        '400':
+          description: Validation or payload error / Erro de validação ou payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/protocol-mode:
+    get:
+      tags: [Protocol]
+      summary: Get protocol mode / Buscar modo de protocolo
+      description: |
+        **EN:** Returns allowed protocol mode and apply scope. Requires `access_token` with `role=admin`.
+        **PT-BR:** Retorna o modo de protocolo permitido e o escopo de aplicação. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Settings fetched / Configuração obtida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolSettingsOutput'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags: [Protocol]
+      summary: Update protocol mode / Atualizar modo de protocolo
+      description: |
+        **EN:** Updates allowed protocol mode and apply scope. Requires `access_token` with `role=admin`.
+        **PT-BR:** Atualiza o modo de protocolo permitido e o escopo de aplicação. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProtocolSettingsInput'
+      responses:
+        '200':
+          description: Settings updated / Configuração atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolSettingsOutput'
+        '400':
+          description: Validation or payload error / Erro de validação ou payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/ip-whitelist:
+    get:
+      tags: [IP Access]
+      summary: List whitelist IPs / Listar IPs da whitelist
+      description: |
+        **EN:** Returns whitelist entries. Requires `access_token`.
+        **PT-BR:** Retorna os itens da whitelist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Whitelist fetched / Whitelist obtida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessListOutput'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [IP Access]
+      summary: Create whitelist IP / Criar IP na whitelist
+      description: |
+        **EN:** Adds one IP to whitelist. Requires `access_token`.
+        **PT-BR:** Adiciona um IP na whitelist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IPAccessInput'
+      responses:
+        '201':
+          description: Whitelist IP created / IP da whitelist criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessOutput'
+        '400':
+          description: Validation or payload error / Erro de validação ou payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/ip-whitelist/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [IP Access]
+      summary: Update whitelist IP / Atualizar IP da whitelist
+      description: |
+        **EN:** Updates one whitelist entry. Requires `access_token`.
+        **PT-BR:** Atualiza um item da whitelist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IPAccessInput'
+      responses:
+        '200':
+          description: Whitelist IP updated / IP da whitelist atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessOutput'
+        '400':
+          description: Invalid ID, validation or payload error / ID inválido, validação ou payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [IP Access]
+      summary: Delete whitelist IP / Deletar IP da whitelist
+      description: |
+        **EN:** Deletes one whitelist entry. Requires `access_token`.
+        **PT-BR:** Remove um item da whitelist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Whitelist IP deleted / IP da whitelist removido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessOutput'
+        '400':
+          description: Invalid ID / ID inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/ip-blacklist:
+    get:
+      tags: [IP Access]
+      summary: List blacklist IPs / Listar IPs da blacklist
+      description: |
+        **EN:** Returns blacklist entries. Requires `access_token`.
+        **PT-BR:** Retorna os itens da blacklist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Blacklist fetched / Blacklist obtida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessListOutput'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [IP Access]
+      summary: Create blacklist IP / Criar IP na blacklist
+      description: |
+        **EN:** Adds one IP to blacklist. Requires `access_token`.
+        **PT-BR:** Adiciona um IP na blacklist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IPAccessInput'
+      responses:
+        '201':
+          description: Blacklist IP created / IP da blacklist criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessOutput'
+        '400':
+          description: Validation or payload error / Erro de validação ou payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/ip-blacklist/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [IP Access]
+      summary: Update blacklist IP / Atualizar IP da blacklist
+      description: |
+        **EN:** Updates one blacklist entry. Requires `access_token`.
+        **PT-BR:** Atualiza um item da blacklist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IPAccessInput'
+      responses:
+        '200':
+          description: Blacklist IP updated / IP da blacklist atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessOutput'
+        '400':
+          description: Invalid ID, validation or payload error / ID inválido, validação ou payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [IP Access]
+      summary: Delete blacklist IP / Deletar IP da blacklist
+      description: |
+        **EN:** Deletes one blacklist entry. Requires `access_token`.
+        **PT-BR:** Remove um item da blacklist. Requer `access_token`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Blacklist IP deleted / IP da blacklist removido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IPAccessOutput'
+        '400':
+          description: Invalid ID / ID inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/special-routes/login:
+    get:
+      tags: [Special Routes]
+      summary: List login special routes / Listar rotas especiais de login
+      description: |
+        **EN:** Lists anti-abuse rules for login routes. Requires `access_token` with `role=admin`.
+        **PT-BR:** Lista regras antiabuso para rotas de login. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Rules fetched / Regras obtidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteListOutput'
+        '400':
+          description: Invalid route type / Tipo de rota inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Special Routes]
+      summary: Create login special route / Criar rota especial de login
+      description: |
+        **EN:** Creates one anti-abuse rule for login route paths. Requires `access_token` with `role=admin`.
+        **PT-BR:** Cria uma regra antiabuso para caminhos de login. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialRouteInput'
+      responses:
+        '201':
+          description: Rule created / Regra criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteOutput'
+        '400':
+          description: Validation or payload error / Erro de validação ou payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/special-routes/login/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [Special Routes]
+      summary: Update login special route / Atualizar rota especial de login
+      description: |
+        **EN:** Updates one login special route rule. Requires `access_token` with `role=admin`.
+        **PT-BR:** Atualiza uma regra de rota especial de login. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialRouteInput'
+      responses:
+        '200':
+          description: Rule updated / Regra atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteOutput'
+        '400':
+          description: Invalid ID, validation or payload error / ID inválido, validação ou payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Rule not found / Regra não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Special Routes]
+      summary: Delete login special route / Deletar rota especial de login
+      description: |
+        **EN:** Deletes one login special route rule. Requires `access_token` with `role=admin`.
+        **PT-BR:** Remove uma regra de rota especial de login. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Rule deleted / Regra removida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteOutput'
+        '400':
+          description: Invalid ID / ID inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Rule not found / Regra não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/special-routes/register:
+    get:
+      tags: [Special Routes]
+      summary: List register special routes / Listar rotas especiais de cadastro
+      description: |
+        **EN:** Lists anti-abuse rules for register routes. Requires `access_token` with `role=admin`.
+        **PT-BR:** Lista regras antiabuso para rotas de cadastro. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Rules fetched / Regras obtidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteListOutput'
+        '400':
+          description: Invalid route type / Tipo de rota inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Special Routes]
+      summary: Create register special route / Criar rota especial de cadastro
+      description: |
+        **EN:** Creates one anti-abuse rule for register route paths. Requires `access_token` with `role=admin`.
+        **PT-BR:** Cria uma regra antiabuso para caminhos de cadastro. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialRouteInput'
+      responses:
+        '201':
+          description: Rule created / Regra criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteOutput'
+        '400':
+          description: Validation or payload error / Erro de validação ou payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/special-routes/register/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [Special Routes]
+      summary: Update register special route / Atualizar rota especial de cadastro
+      description: |
+        **EN:** Updates one register special route rule. Requires `access_token` with `role=admin`.
+        **PT-BR:** Atualiza uma regra de rota especial de cadastro. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialRouteInput'
+      responses:
+        '200':
+          description: Rule updated / Regra atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteOutput'
+        '400':
+          description: Invalid ID, validation or payload error / ID inválido, validação ou payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Rule not found / Regra não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags: [Special Routes]
+      summary: Delete register special route / Deletar rota especial de cadastro
+      description: |
+        **EN:** Deletes one register special route rule. Requires `access_token` with `role=admin`.
+        **PT-BR:** Remove uma regra de rota especial de cadastro. Requer `access_token` com `role=admin`.
+      security:
+        - accessTokenCookie: []
+      responses:
+        '200':
+          description: Rule deleted / Regra removida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialRouteOutput'
+        '400':
+          description: Invalid ID / ID inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin only) / Proibido (somente admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Rule not found / Regra não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /{path}:
     x-internal: true
     parameters:
@@ -1011,14 +2113,30 @@ paths:
       tags: [Proxy]
       summary: Proxy fallback (GET) / Fallback de proxy (GET)
       description: |
-        **EN:** Fallback route mapped to `ANY /{path:*}`. Current handler logs request metadata and does not write a structured body.
+        **EN:** Forwards unmatched requests to the selected upstream application.
+        If request input (body/query) contains SQL commands, returns `400` with `invalid data.`.
+        If upstream response body contains SQL commands, returns `500` with `internal error`.
+        Otherwise returns upstream status/body.
 
-        **PT-BR:** Rota de fallback mapeada em `ANY /{path:*}`. O handler atual registra metadados da requisição e não escreve corpo estruturado.
+        **PT-BR:** Encaminha requisições não casadas para a aplicação upstream selecionada.
+        Se o input (body/query) contiver comandos SQL, retorna `400` com `invalid data.`.
+        Se o body da resposta upstream contiver comandos SQL, retorna `500` com `internal error`.
+        Caso contrário retorna status/body do upstream.
       responses:
-        '200':
-          description: |
-            EN: Request received by fallback handler.
-            PT-BR: Requisição recebida pelo handler de fallback.
+        '400':
+          description: SQL command detected in input / Comando SQL detectado no input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: SQL command detected in upstream output / Comando SQL detectado no retorno upstream
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Upstream response passthrough / Resposta upstream repassada
     post:
       tags: [Proxy]
       summary: Proxy fallback (POST) / Fallback de proxy (POST)
@@ -1026,10 +2144,20 @@ paths:
         **EN:** Same behavior as GET fallback.
         **PT-BR:** Mesmo comportamento do fallback GET.
       responses:
-        '200':
-          description: |
-            EN: Request received by fallback handler.
-            PT-BR: Requisição recebida pelo handler de fallback.
+        '400':
+          description: SQL command detected in input / Comando SQL detectado no input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: SQL command detected in upstream output / Comando SQL detectado no retorno upstream
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Upstream response passthrough / Resposta upstream repassada
     put:
       tags: [Proxy]
       summary: Proxy fallback (PUT) / Fallback de proxy (PUT)
@@ -1037,10 +2165,20 @@ paths:
         **EN:** Same behavior as GET fallback.
         **PT-BR:** Mesmo comportamento do fallback GET.
       responses:
-        '200':
-          description: |
-            EN: Request received by fallback handler.
-            PT-BR: Requisição recebida pelo handler de fallback.
+        '400':
+          description: SQL command detected in input / Comando SQL detectado no input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: SQL command detected in upstream output / Comando SQL detectado no retorno upstream
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Upstream response passthrough / Resposta upstream repassada
     patch:
       tags: [Proxy]
       summary: Proxy fallback (PATCH) / Fallback de proxy (PATCH)
@@ -1048,10 +2186,20 @@ paths:
         **EN:** Same behavior as GET fallback.
         **PT-BR:** Mesmo comportamento do fallback GET.
       responses:
-        '200':
-          description: |
-            EN: Request received by fallback handler.
-            PT-BR: Requisição recebida pelo handler de fallback.
+        '400':
+          description: SQL command detected in input / Comando SQL detectado no input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: SQL command detected in upstream output / Comando SQL detectado no retorno upstream
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Upstream response passthrough / Resposta upstream repassada
     delete:
       tags: [Proxy]
       summary: Proxy fallback (DELETE) / Fallback de proxy (DELETE)
@@ -1059,7 +2207,17 @@ paths:
         **EN:** Same behavior as GET fallback.
         **PT-BR:** Mesmo comportamento do fallback GET.
       responses:
-        '200':
-          description: |
-            EN: Request received by fallback handler.
-            PT-BR: Requisição recebida pelo handler de fallback.
+        '400':
+          description: SQL command detected in input / Comando SQL detectado no input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: SQL command detected in upstream output / Comando SQL detectado no retorno upstream
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Upstream response passthrough / Resposta upstream repassada

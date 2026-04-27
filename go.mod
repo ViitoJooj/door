@@ -11,6 +11,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.41
 	github.com/valyala/fasthttp v1.70.0
 	golang.org/x/crypto v0.49.0
+	golang.org/x/time v0.12.0
 )
 
 require (

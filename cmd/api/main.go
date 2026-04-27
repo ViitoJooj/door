@@ -23,11 +23,12 @@ func main() {
 	initializer.Init_project()
 	database.Conn()
 	middlewares.LoadCorsFromDB()
+	middlewares.LoadIPAccessListsFromDB()
 	ip2location.Open()
 	router := router.New()
 
 	logger := logger.NewLogger(os.Stdout)
-	envRepo, authRepo, applicationRepo, logRepo, corsRepo := repository.NewSQLiteRepository(database.DB)
+	envRepo, authRepo, applicationRepo, logRepo, corsRepo, rateLimitRepo, ipAccessListRepo, protocolSettingsRepo, specialRouteRepo := repository.NewSQLiteRepository(database.DB)
 
 	//Cors router
 	corsService := services.NewCorsService(corsRepo, authRepo)
@@ -57,23 +58,63 @@ func main() {
 	requestLogService := services.NewRequestLogService(logRepo)
 	requestLogHandler := handler.NewRequestLogHandler(requestLogService)
 
+	//RateLimit
+	rateLimitService := services.NewRateLimitService(rateLimitRepo)
+	rateLimitHandler := handler.NewRateLimitHandler(rateLimitService)
+
+	//IP Access List
+	ipAccessListService := services.NewIPAccessListService(ipAccessListRepo, authRepo)
+	ipAccessListHandler := handler.NewIPAccessListHandler(ipAccessListService)
+
+	//Protocol settings
+	protocolSettingsService := services.NewProtocolSettingsService(protocolSettingsRepo)
+	protocolSettingsHandler := handler.NewProtocolSettingsHandler(protocolSettingsService)
+
+	//Special route rules
+	specialRouteService := services.NewSpecialRouteService(specialRouteRepo, authRepo)
+	specialRouteHandler := handler.NewSpecialRouteHandler(specialRouteService)
+
 	//Routers
 	httpx.RegisterEnvRouters(router, envHandler)
 	httpx.RegisterAuthRoutes(router, authHandler)
 	httpx.RegisterApplicationRouters(router, applicationHandler)
 	httpx.RegisterRequestLogRoutes(router, requestLogHandler)
-	httpx.RegisterProxyRoutes(router, proxyHandler)
 	httpx.RegisterCorsOriginsRouters(router, corsHandler)
 	httpx.RegisterUserRouters(router, userHandler)
+	httpx.RegisterRateLimitRouters(router, rateLimitHandler)
+	httpx.RegisterIPAccessListRouters(router, ipAccessListHandler)
+	httpx.RegisterProtocolSettingsRouters(router, protocolSettingsHandler)
+	httpx.RegisterSpecialRouteRouters(router, specialRouteHandler)
+	httpx.RegisterProxyRoutes(router, proxyHandler)
+
+	rateLimitSettings, err := rateLimitService.Get()
+	if err != nil {
+		log.Println(err)
+	} else {
+		middlewares.UpdateRateLimitConfig(rateLimitSettings.RequestsPerSecond, rateLimitSettings.Burst, rateLimitSettings.Progressive)
+	}
+
+	protocolSettings, err := protocolSettingsService.Get()
+	if err != nil {
+		log.Println(err)
+	} else {
+		middlewares.UpdateAllowedProtocol(protocolSettings.AllowedProtocol)
+		middlewares.UpdateConfigApplyScope(protocolSettings.ApplyScope)
+	}
+
+	middlewares.LoadSpecialRoutesFromDB()
 
 	//Middelwares
 	handlerWithLog := middlewares.RequestLoggerMiddleware(router.Handler, logRepo)
 	handlerWithCors := middlewares.CorsMiddleware(handlerWithLog)
+	handlerWithProtocolMode := middlewares.ProtocolModeMiddleware(handlerWithCors)
+	handlerWithSpecialRoutes := middlewares.SpecialRoutesMiddleware(handlerWithProtocolMode)
+	handlerWithRateLimit := middlewares.RateLimitMiddleware(handlerWithSpecialRoutes)
 
 	port := initializer.EnsureAppPort(database.DB)
 	os.Setenv("APP_PORT", strconv.Itoa(port))
 	address := fmt.Sprintf(":%d", port)
 
 	log.Printf("Ward running on port: %d", port)
-	fasthttp.ListenAndServe(address, handlerWithCors)
+	fasthttp.ListenAndServe(address, handlerWithRateLimit)
 }

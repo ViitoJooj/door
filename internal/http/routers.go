@@ -56,3 +56,50 @@ func RegisterUserRouters(r *router.Router, userController *handler.UserHandler) 
 	r.PUT("/ward/api/v1/users/{path:*}", adminOnly(userController.UpdateByID))
 	r.DELETE("/ward/api/v1/users/{path:*}", adminOnly(userController.DeleteByID))
 }
+
+func RegisterRateLimitRouters(r *router.Router, rateLimitHandler *handler.RateLimitHandler) {
+	adminOnly := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+		return middlewares.UserIdMiddleware(middlewares.AdminOnlyMiddleware(next))
+	}
+
+	r.GET("/ward/api/v1/rate-limit", adminOnly(rateLimitHandler.Get))
+	r.PUT("/ward/api/v1/rate-limit", adminOnly(rateLimitHandler.Update))
+}
+
+func RegisterIPAccessListRouters(r *router.Router, ipAccessListHandler *handler.IPAccessListHandler) {
+
+	r.GET("/ward/api/v1/ip-whitelist", middlewares.UserIdMiddleware(ipAccessListHandler.GetWhitelist))
+	r.POST("/ward/api/v1/ip-whitelist", middlewares.UserIdMiddleware(ipAccessListHandler.CreateWhitelist))
+	r.PUT("/ward/api/v1/ip-whitelist/{path:*}", middlewares.UserIdMiddleware(ipAccessListHandler.UpdateWhitelist))
+	r.DELETE("/ward/api/v1/ip-whitelist/{path:*}", middlewares.UserIdMiddleware(ipAccessListHandler.DeleteWhitelist))
+
+	r.GET("/ward/api/v1/ip-blacklist", middlewares.UserIdMiddleware(ipAccessListHandler.GetBlacklist))
+	r.POST("/ward/api/v1/ip-blacklist", middlewares.UserIdMiddleware(ipAccessListHandler.CreateBlacklist))
+	r.PUT("/ward/api/v1/ip-blacklist/{path:*}", middlewares.UserIdMiddleware(ipAccessListHandler.UpdateBlacklist))
+	r.DELETE("/ward/api/v1/ip-blacklist/{path:*}", middlewares.UserIdMiddleware(ipAccessListHandler.DeleteBlacklist))
+}
+
+func RegisterProtocolSettingsRouters(r *router.Router, protocolHandler *handler.ProtocolSettingsHandler) {
+	adminOnly := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+		return middlewares.UserIdMiddleware(middlewares.AdminOnlyMiddleware(next))
+	}
+
+	r.GET("/ward/api/v1/protocol-mode", adminOnly(protocolHandler.Get))
+	r.PUT("/ward/api/v1/protocol-mode", adminOnly(protocolHandler.Update))
+}
+
+func RegisterSpecialRouteRouters(r *router.Router, specialRouteHandler *handler.SpecialRouteHandler) {
+	adminOnly := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+		return middlewares.UserIdMiddleware(middlewares.AdminOnlyMiddleware(next))
+	}
+
+	r.GET("/ward/api/v1/special-routes/login", adminOnly(specialRouteHandler.GetByType))
+	r.POST("/ward/api/v1/special-routes/login", adminOnly(specialRouteHandler.Create))
+	r.PUT("/ward/api/v1/special-routes/login/{path:*}", adminOnly(specialRouteHandler.Update))
+	r.DELETE("/ward/api/v1/special-routes/login/{path:*}", adminOnly(specialRouteHandler.Delete))
+
+	r.GET("/ward/api/v1/special-routes/register", adminOnly(specialRouteHandler.GetByType))
+	r.POST("/ward/api/v1/special-routes/register", adminOnly(specialRouteHandler.Create))
+	r.PUT("/ward/api/v1/special-routes/register/{path:*}", adminOnly(specialRouteHandler.Update))
+	r.DELETE("/ward/api/v1/special-routes/register/{path:*}", adminOnly(specialRouteHandler.Delete))
+}

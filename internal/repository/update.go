@@ -121,3 +121,120 @@ func (r *SQLite) ChangeCors(cors *domain.Cors) error {
 	)
 	return err
 }
+
+func (r *SQLite) UpsertRateLimitSettings(settings *domain.RateLimitSettings) error {
+	progressiveEnabled := 0
+	if settings.Progressive {
+		progressiveEnabled = 1
+	}
+
+	_, err := r.db.Exec(`
+		INSERT INTO rate_limit_settings (id, requests_per_second, burst, progressive_enabled)
+		VALUES (1, ?, ?, ?)
+		ON CONFLICT(id) DO UPDATE SET
+			requests_per_second = excluded.requests_per_second,
+			burst = excluded.burst,
+			progressive_enabled = excluded.progressive_enabled,
+			updated_at = CURRENT_TIMESTAMP
+	`,
+		settings.RequestsPerSecond,
+		settings.Burst,
+		progressiveEnabled,
+	)
+	return err
+}
+
+func (r *SQLite) UpdateWhitelistedIP(entry *domain.IPAccessEntry) error {
+	_, err := r.db.Exec(`
+		UPDATE ip_whitelist
+		SET ip = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`, entry.IP, entry.UpdatedBy, entry.ID)
+	if err != nil {
+		return err
+	}
+
+	return r.db.QueryRow(`
+		SELECT id, ip, created_by, updated_by, created_at, updated_at
+		FROM ip_whitelist
+		WHERE id = ?
+	`, entry.ID).Scan(
+		&entry.ID,
+		&entry.IP,
+		&entry.CreatedBy,
+		&entry.UpdatedBy,
+		&entry.CreatedAt,
+		&entry.UpdatedAt,
+	)
+}
+
+func (r *SQLite) UpdateBlacklistedIP(entry *domain.IPAccessEntry) error {
+	_, err := r.db.Exec(`
+		UPDATE ip_blacklist
+		SET ip = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`, entry.IP, entry.UpdatedBy, entry.ID)
+	if err != nil {
+		return err
+	}
+
+	return r.db.QueryRow(`
+		SELECT id, ip, created_by, updated_by, created_at, updated_at
+		FROM ip_blacklist
+		WHERE id = ?
+	`, entry.ID).Scan(
+		&entry.ID,
+		&entry.IP,
+		&entry.CreatedBy,
+		&entry.UpdatedBy,
+		&entry.CreatedAt,
+		&entry.UpdatedAt,
+	)
+}
+
+func (r *SQLite) UpsertProtocolSettings(settings *domain.ProtocolSettings) error {
+	_, err := r.db.Exec(`
+		INSERT INTO protocol_settings (id, allowed_protocol, apply_scope)
+		VALUES (1, ?, ?)
+		ON CONFLICT(id) DO UPDATE SET
+			allowed_protocol = excluded.allowed_protocol,
+			apply_scope = excluded.apply_scope,
+			updated_at = CURRENT_TIMESTAMP
+	`, settings.AllowedProtocol, settings.ApplyScope)
+	return err
+}
+
+func (r *SQLite) UpdateSpecialRouteRule(rule *domain.SpecialRouteRule) error {
+	enabledInt := 0
+	if rule.Enabled {
+		enabledInt = 1
+	}
+
+	_, err := r.db.Exec(`
+		UPDATE special_route_rules
+		SET path = ?, max_distinct_requests = ?, window_seconds = ?, ban_seconds = ?, enabled = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`,
+		rule.Path,
+		rule.MaxDistinctRequests,
+		rule.WindowSeconds,
+		rule.BanSeconds,
+		enabledInt,
+		rule.UpdatedBy,
+		rule.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	updatedRule, err := r.FindSpecialRouteRuleByID(rule.ID)
+	if err != nil {
+		return err
+	}
+	if updatedRule == nil {
+		return sql.ErrNoRows
+	}
+
+	*rule = *updatedRule
+	return nil
+}

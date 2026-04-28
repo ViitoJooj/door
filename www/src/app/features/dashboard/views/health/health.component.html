@@ -1,0 +1,104 @@
+<div class="view">
+  <div class="view__header">
+    <div>
+      <h2 class="view__title">Health</h2>
+      <p class="view__subtitle">Gateway health derived from request logs.</p>
+    </div>
+    <div class="window-selector">
+      <button class="window-btn" [class.window-btn--active]="windowMinutes() === 5" (click)="setWindow(5)" type="button">5m</button>
+      <button class="window-btn" [class.window-btn--active]="windowMinutes() === 15" (click)="setWindow(15)" type="button">15m</button>
+      <button class="window-btn" [class.window-btn--active]="windowMinutes() === 60" (click)="setWindow(60)" type="button">60m</button>
+    </div>
+  </div>
+
+  @if (error()) {
+    <p class="error-message">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="state-message">Loading...</p>
+  } @else if (overview()) {
+    <div class="summary-row">
+      <div class="summary-card">
+        <p class="summary-card__label">Overall status</p>
+        <p class="summary-card__value">
+          <span [class]="statusClass(overview()!.status)">
+            {{ overview()!.status }}
+          </span>
+        </p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Requests</p>
+        <p class="summary-card__value">{{ overview()!.total_requests }}</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Availability</p>
+        <p class="summary-card__value">{{ metricPercent(overview()!.availability) }}</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Server error rate</p>
+        <p class="summary-card__value">{{ metricPercent(overview()!.server_error_rate) }}</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Avg latency</p>
+        <p class="summary-card__value">{{ metricLatency(overview()!.average_latency_ms) }}</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">P95 latency</p>
+        <p class="summary-card__value">{{ metricLatency(overview()!.p95_latency_ms) }}</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Req/min</p>
+        <p class="summary-card__value">{{ metricRpm(overview()!.requests_per_minute) }}</p>
+      </div>
+      <div class="summary-card">
+        <p class="summary-card__label">Unique IPs / Paths</p>
+        <p class="summary-card__value">{{ overview()!.unique_ips }} / {{ overview()!.unique_paths }}</p>
+      </div>
+    </div>
+
+    @if (routes().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No route data found in this window.</p>
+        <p class="empty-state__hint">Try increasing the window or generate traffic.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Method</th>
+              <th>Path</th>
+              <th>Requests</th>
+              <th>Availability</th>
+              <th>5xx rate</th>
+              <th>4xx rate</th>
+              <th>Avg</th>
+              <th>P95</th>
+              <th>RPM</th>
+              <th>Last seen</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (route of routes(); track route.method + route.path) {
+              <tr class="table-row">
+                <td><span [class]="statusClass(route.status)">{{ route.status }}</span></td>
+                <td class="mono">{{ route.method }}</td>
+                <td class="table-row__path">{{ route.path }}</td>
+                <td>{{ route.request_count }}</td>
+                <td>{{ metricPercent(route.availability) }}</td>
+                <td>{{ metricPercent(route.server_error_rate) }}</td>
+                <td>{{ metricPercent(route.client_error_rate) }}</td>
+                <td>{{ metricLatency(route.average_latency_ms) }}</td>
+                <td>{{ metricLatency(route.p95_latency_ms) }}</td>
+                <td>{{ metricRpm(route.requests_per_minute) }}</td>
+                <td class="table-row__secondary">{{ route.last_seen_at | date: 'dd/MM HH:mm:ss' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

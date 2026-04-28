@@ -22,6 +22,11 @@ func RegisterRequestLogRoutes(r *router.Router, requestLogController *handler.Re
 	r.GET("/ward/api/v1/logs", middlewares.UserIdMiddleware(requestLogController.GetAll))
 }
 
+func RegisterHealthRoutes(r *router.Router, healthHandler *handler.HealthHandler) {
+	r.GET("/ward/api/v1/health", middlewares.UserIdMiddleware(healthHandler.GetOverview))
+	r.GET("/ward/api/v1/health/routes", middlewares.UserIdMiddleware(healthHandler.GetRoutes))
+}
+
 func RegisterApplicationRouters(r *router.Router, applicationController *handler.ApplicationHandler) {
 	r.GET("/ward/api/v1/applications", middlewares.UserIdMiddleware(applicationController.GetAll))
 	r.GET("/ward/api/v1/applications/{path:*}", middlewares.UserIdMiddleware(applicationController.GetByID))

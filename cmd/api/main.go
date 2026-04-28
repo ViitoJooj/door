@@ -58,6 +58,10 @@ func main() {
 	requestLogService := services.NewRequestLogService(logRepo)
 	requestLogHandler := handler.NewRequestLogHandler(requestLogService)
 
+	//Health
+	healthService := services.NewHealthService(logRepo)
+	healthHandler := handler.NewHealthHandler(healthService)
+
 	//RateLimit
 	rateLimitService := services.NewRateLimitService(rateLimitRepo)
 	rateLimitHandler := handler.NewRateLimitHandler(rateLimitService)
@@ -79,6 +83,7 @@ func main() {
 	httpx.RegisterAuthRoutes(router, authHandler)
 	httpx.RegisterApplicationRouters(router, applicationHandler)
 	httpx.RegisterRequestLogRoutes(router, requestLogHandler)
+	httpx.RegisterHealthRoutes(router, healthHandler)
 	httpx.RegisterCorsOriginsRouters(router, corsHandler)
 	httpx.RegisterUserRouters(router, userHandler)
 	httpx.RegisterRateLimitRouters(router, rateLimitHandler)

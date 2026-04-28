@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/ViitoJooj/ward/internal/domain"
 )
@@ -40,6 +41,7 @@ type ApplicationRepository interface {
 type RequestLogRepository interface {
 	InsertRequestLog(log *domain.RequestLog) error
 	ListRequestLogs() ([]*domain.RequestLog, error)
+	ListRequestLogsSince(since time.Time, limit int) ([]*domain.RequestLog, error)
 }
 
 type DotEnvRepository interface {

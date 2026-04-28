@@ -43,6 +43,10 @@
   border-bottom: 1px solid #1e1e1e;
 }
 
+.settings-tabs--inner {
+  margin-top: -8px;
+}
+
 .settings-tab {
   background: none;
   border: none;
@@ -121,6 +125,12 @@
 
 .env-row__input {
   width: 240px;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 // USERS
@@ -343,6 +353,12 @@
       background-color: #111111;
     }
   }
+
+  &__input--compact {
+    padding: 7px 10px;
+    font-size: 12px;
+    min-width: 85px;
+  }
 }
 
 .btn-primary {
@@ -431,6 +447,16 @@
   padding: 11px 14px;
   background-color: rgba(255, 68, 68, 0.07);
   border: 1px solid rgba(255, 68, 68, 0.18);
+  border-radius: 8px;
+}
+
+.success-message {
+  font-size: 12px;
+  color: #9eff00;
+  margin: 0;
+  padding: 11px 14px;
+  background-color: rgba(158, 255, 0, 0.07);
+  border: 1px solid rgba(158, 255, 0, 0.2);
   border-radius: 8px;
 }
 

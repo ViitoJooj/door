@@ -3,7 +3,7 @@
   <div class="view__header">
     <div>
       <h2 class="view__title">Settings</h2>
-      <p class="view__subtitle">Environment variables and user management.</p>
+      <p class="view__subtitle">Gateway configuration, access rules and user management.</p>
     </div>
   </div>
 
@@ -16,6 +16,14 @@
     >
       Environment
     </button>
+    <button
+      class="settings-tab"
+      [class.settings-tab--active]="activeTab() === 'ipAccess'"
+      (click)="setTab('ipAccess')"
+      type="button"
+    >
+      IP Access
+    </button>
     @if (isAdmin) {
       <button
         class="settings-tab"
@@ -24,6 +32,30 @@
         type="button"
       >
         Users
+      </button>
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeTab() === 'rateLimit'"
+        (click)="setTab('rateLimit')"
+        type="button"
+      >
+        Rate Limit
+      </button>
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeTab() === 'protocol'"
+        (click)="setTab('protocol')"
+        type="button"
+      >
+        Protocol
+      </button>
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeTab() === 'specialRoutes'"
+        (click)="setTab('specialRoutes')"
+        type="button"
+      >
+        Special Routes
       </button>
     }
   </div>
@@ -172,6 +204,305 @@
                     {{ deletingId() === user.id ? 'Removing...' : 'Remove' }}
                   </button>
                 </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'rateLimit' && isAdmin) {
+    @if (rateLimitError()) {
+      <p class="error-message">{{ rateLimitError() }}</p>
+    }
+    @if (rateLimitSuccess()) {
+      <p class="success-message">{{ rateLimitSuccess() }}</p>
+    }
+    @if (rateLimitLoading()) {
+      <p class="state-message">Loading...</p>
+    } @else {
+      <div class="create-form">
+        <p class="create-form__title">Global rate limit</p>
+        <form [formGroup]="rateLimitForm" (ngSubmit)="saveRateLimit()" class="form">
+          <div class="form__row">
+            <div class="field">
+              <label class="field__label">Requests per second</label>
+              <input class="field__input" type="number" step="0.1" formControlName="requests_per_second" />
+            </div>
+            <div class="field">
+              <label class="field__label">Burst</label>
+              <input class="field__input" type="number" step="1" formControlName="burst" />
+            </div>
+            <div class="field field--small">
+              <label class="field__label">Progressive</label>
+              <select class="field__input" formControlName="progressive_rate_limit">
+                <option [ngValue]="true">Enabled</option>
+                <option [ngValue]="false">Disabled</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" type="submit" [disabled]="rateLimitSaving()">
+            {{ rateLimitSaving() ? 'Saving...' : 'Save' }}
+          </button>
+        </form>
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'protocol' && isAdmin) {
+    @if (protocolError()) {
+      <p class="error-message">{{ protocolError() }}</p>
+    }
+    @if (protocolSuccess()) {
+      <p class="success-message">{{ protocolSuccess() }}</p>
+    }
+    @if (protocolLoading()) {
+      <p class="state-message">Loading...</p>
+    } @else {
+      <div class="create-form">
+        <p class="create-form__title">Protocol mode</p>
+        <form [formGroup]="protocolForm" (ngSubmit)="saveProtocolSettings()" class="form">
+          <div class="form__row">
+            <div class="field">
+              <label class="field__label">Allowed protocol</label>
+              <select class="field__input" formControlName="allowed_protocol">
+                <option value="both">Both</option>
+                <option value="https">HTTPS only</option>
+                <option value="http">HTTP only</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field__label">Apply scope</label>
+              <select class="field__input" formControlName="apply_scope">
+                <option value="all">All traffic</option>
+                <option value="external">External only</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" type="submit" [disabled]="protocolSaving()">
+            {{ protocolSaving() ? 'Saving...' : 'Save' }}
+          </button>
+        </form>
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'ipAccess') {
+    <div class="settings-tabs settings-tabs--inner">
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeIPList() === 'whitelist'"
+        (click)="setIPList('whitelist')"
+        type="button"
+      >
+        Whitelist
+      </button>
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeIPList() === 'blacklist'"
+        (click)="setIPList('blacklist')"
+        type="button"
+      >
+        Blacklist
+      </button>
+    </div>
+
+    @if (ipError()) {
+      <p class="error-message">{{ ipError() }}</p>
+    }
+    @if (ipSuccess()) {
+      <p class="success-message">{{ ipSuccess() }}</p>
+    }
+
+    <div class="create-form">
+      <p class="create-form__title">Add {{ activeIPList() === 'whitelist' ? 'whitelist' : 'blacklist' }} IP</p>
+      <div class="inline-actions">
+        <input
+          class="field__input"
+          type="text"
+          [value]="ipNewValue()"
+          (input)="onIPInput($event)"
+          (keyup.enter)="createIP()"
+          placeholder="203.0.113.10"
+        />
+        <button class="btn-primary btn-small" type="button" [disabled]="ipCreating()" (click)="createIP()">
+          {{ ipCreating() ? 'Adding...' : 'Add' }}
+        </button>
+      </div>
+    </div>
+
+    @if (ipLoading()) {
+      <p class="state-message">Loading...</p>
+    } @else if (currentIPEntries().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No IPs found.</p>
+        <p class="empty-state__hint">Add an entry to start managing the list.</p>
+      </div>
+    } @else {
+      <div class="env-list">
+        @for (entry of currentIPEntries(); track entry.id) {
+          <div class="env-row">
+            @if (ipEditingId() === entry.id && ipEditingType() === activeIPList()) {
+              <input
+                class="field__input env-row__input"
+                type="text"
+                [value]="ipEditValue()"
+                (input)="onEditIPInput($event)"
+                (keyup.enter)="saveEditIP(entry, activeIPList())"
+                (keyup.escape)="cancelEditIP()"
+              />
+              <div class="env-row__right">
+                <button class="btn-primary btn-small" type="button" [disabled]="ipSavingId() === entry.id" (click)="saveEditIP(entry, activeIPList())">
+                  {{ ipSavingId() === entry.id ? 'Saving...' : 'Save' }}
+                </button>
+                <button class="btn-ghost btn-small" type="button" (click)="cancelEditIP()">Cancel</button>
+              </div>
+            } @else {
+              <span class="env-row__name">{{ entry.ip }}</span>
+              <div class="env-row__right">
+                <button class="btn-ghost btn-small" type="button" (click)="startEditIP(entry, activeIPList())">Edit</button>
+                <button
+                  class="btn-danger btn-small"
+                  type="button"
+                  [disabled]="ipDeletingId() === entry.id"
+                  (click)="deleteIP(entry, activeIPList())"
+                >
+                  {{ ipDeletingId() === entry.id ? 'Removing...' : 'Remove' }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'specialRoutes' && isAdmin) {
+    <div class="settings-tabs settings-tabs--inner">
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeSpecialType() === 'login'"
+        (click)="setSpecialType('login')"
+        type="button"
+      >
+        Login routes
+      </button>
+      <button
+        class="settings-tab"
+        [class.settings-tab--active]="activeSpecialType() === 'register'"
+        (click)="setSpecialType('register')"
+        type="button"
+      >
+        Register routes
+      </button>
+    </div>
+
+    @if (specialError()) {
+      <p class="error-message">{{ specialError() }}</p>
+    }
+    @if (specialSuccess()) {
+      <p class="success-message">{{ specialSuccess() }}</p>
+    }
+
+    <div class="create-form">
+      <p class="create-form__title">New {{ activeSpecialType() }} route rule</p>
+      <form [formGroup]="specialCreateForm" (ngSubmit)="createSpecialRoute()" class="form">
+        <div class="form__row">
+          <div class="field">
+            <label class="field__label">Path</label>
+            <input class="field__input" type="text" formControlName="path" placeholder="/ward/api/v1/auth/login" />
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="field">
+            <label class="field__label">Max distinct requests</label>
+            <input class="field__input" type="number" formControlName="max_distinct_requests" />
+          </div>
+          <div class="field">
+            <label class="field__label">Window (seconds)</label>
+            <input class="field__input" type="number" formControlName="window_seconds" />
+          </div>
+          <div class="field">
+            <label class="field__label">Ban (seconds)</label>
+            <input class="field__input" type="number" formControlName="ban_seconds" />
+          </div>
+          <div class="field field--small">
+            <label class="field__label">Enabled</label>
+            <select class="field__input" formControlName="enabled">
+              <option [ngValue]="true">Yes</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" type="submit" [disabled]="specialCreating()">
+          {{ specialCreating() ? 'Creating...' : 'Create rule' }}
+        </button>
+      </form>
+    </div>
+
+    @if (specialLoading()) {
+      <p class="state-message">Loading...</p>
+    } @else if (currentSpecialRoutes().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No special route rules found.</p>
+        <p class="empty-state__hint">Create a rule to protect this route group.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Distinct</th>
+              <th>Window</th>
+              <th>Ban</th>
+              <th>Enabled</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (route of currentSpecialRoutes(); track route.id) {
+              <tr class="table-row">
+                @if (specialEditingId() === route.id && specialEditingType() === route.route_type && specialEditValue()) {
+                  <td><input class="field__input field__input--compact" type="text" [value]="specialEditValue()!.path" (input)="onSpecialEditTextInput('path', $event)" /></td>
+                  <td><input class="field__input field__input--compact" type="number" [value]="specialEditValue()!.max_distinct_requests" (input)="onSpecialEditNumberInput('max_distinct_requests', $event)" /></td>
+                  <td><input class="field__input field__input--compact" type="number" [value]="specialEditValue()!.window_seconds" (input)="onSpecialEditNumberInput('window_seconds', $event)" /></td>
+                  <td><input class="field__input field__input--compact" type="number" [value]="specialEditValue()!.ban_seconds" (input)="onSpecialEditNumberInput('ban_seconds', $event)" /></td>
+                  <td>
+                    <select class="field__input field__input--compact" [value]="specialEditValue()!.enabled" (change)="onSpecialEditEnabledChange($event)">
+                      <option value="true">Yes</option>
+                      <option value="false">No</option>
+                    </select>
+                  </td>
+                  <td class="table-row__actions">
+                    <button class="btn-primary btn-small" type="button" [disabled]="specialSavingId() === route.id" (click)="saveEditSpecialRoute(route)">
+                      {{ specialSavingId() === route.id ? 'Saving...' : 'Save' }}
+                    </button>
+                    <button class="btn-ghost btn-small" type="button" (click)="cancelEditSpecialRoute()">Cancel</button>
+                  </td>
+                } @else {
+                  <td class="table-row__primary">{{ route.path }}</td>
+                  <td class="table-row__secondary">{{ route.max_distinct_requests }}</td>
+                  <td class="table-row__secondary">{{ route.window_seconds }}s</td>
+                  <td class="table-row__secondary">{{ route.ban_seconds }}s</td>
+                  <td>
+                    <span [class]="'status-badge status-badge--' + (route.enabled ? 'active' : 'inactive')">
+                      {{ route.enabled ? 'Enabled' : 'Disabled' }}
+                    </span>
+                  </td>
+                  <td class="table-row__actions">
+                    <button class="btn-ghost btn-small" type="button" (click)="startEditSpecialRoute(route)">Edit</button>
+                    <button
+                      class="btn-danger btn-small"
+                      type="button"
+                      [disabled]="specialDeletingId() === route.id"
+                      (click)="deleteSpecialRoute(route)"
+                    >
+                      {{ specialDeletingId() === route.id ? 'Removing...' : 'Remove' }}
+                    </button>
+                  </td>
+                }
               </tr>
             }
           </tbody>

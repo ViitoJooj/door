@@ -28,6 +28,10 @@ tags:
     description: |
       EN: Request log retrieval.
       PT-BR: Consulta de logs de requisição.
+  - name: Health
+    description: |
+      EN: Health check analytics generated from request logs.
+      PT-BR: Análises de health check geradas a partir dos logs de requisição.
   - name: Proxy
     description: |
       EN: Catch-all fallback route.
@@ -435,6 +439,142 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RequestLogData'
+
+    HealthOverviewData:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, unknown]
+          example: healthy
+        window_minutes:
+          type: integer
+          example: 15
+        generated_at:
+          type: string
+          format: date-time
+          example: "2026-04-28T14:00:00Z"
+        total_requests:
+          type: integer
+          example: 320
+        server_errors:
+          type: integer
+          example: 4
+        client_errors:
+          type: integer
+          example: 18
+        availability:
+          type: number
+          format: double
+          example: 98.75
+        server_error_rate:
+          type: number
+          format: double
+          example: 1.25
+        client_error_rate:
+          type: number
+          format: double
+          example: 5.62
+        average_latency_ms:
+          type: number
+          format: double
+          example: 84.2
+        p95_latency_ms:
+          type: integer
+          format: int64
+          example: 210
+        requests_per_minute:
+          type: number
+          format: double
+          example: 21.33
+        unique_ips:
+          type: integer
+          example: 12
+        unique_paths:
+          type: integer
+          example: 9
+
+    HealthOverviewOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ok.
+        data:
+          $ref: '#/components/schemas/HealthOverviewData'
+
+    HealthRouteData:
+      type: object
+      properties:
+        method:
+          type: string
+          example: GET
+        path:
+          type: string
+          example: /ward/api/v1/logs
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, unknown]
+          example: degraded
+        window_minutes:
+          type: integer
+          example: 15
+        last_seen_at:
+          type: string
+          format: date-time
+          example: "2026-04-28T14:00:00Z"
+        request_count:
+          type: integer
+          example: 120
+        server_errors:
+          type: integer
+          example: 5
+        client_errors:
+          type: integer
+          example: 11
+        availability:
+          type: number
+          format: double
+          example: 95.83
+        server_error_rate:
+          type: number
+          format: double
+          example: 4.17
+        client_error_rate:
+          type: number
+          format: double
+          example: 9.17
+        average_latency_ms:
+          type: number
+          format: double
+          example: 175.1
+        p95_latency_ms:
+          type: integer
+          format: int64
+          example: 390
+        requests_per_minute:
+          type: number
+          format: double
+          example: 8.0
+
+    HealthRoutesOutput:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ok.
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthRouteData'
 
     RateLimitInput:
       type: object
@@ -1035,6 +1175,108 @@ paths:
           description: |
             EN: Internal error.
             PT-BR: Erro interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/health:
+    get:
+      tags: [Health]
+      summary: Health overview from logs / Visão geral de health baseada em logs
+      description: |
+        **EN:** Returns aggregated health indicators computed from request logs over a time window.
+        Use `window_minutes` query param to change the analysis window (default: 15).
+
+        **PT-BR:** Retorna indicadores agregados de health calculados a partir dos logs de requisição em uma janela de tempo.
+        Use o parâmetro de query `window_minutes` para alterar a janela (padrão: 15).
+      security:
+        - accessTokenCookie: []
+      parameters:
+        - in: query
+          name: window_minutes
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1440
+          required: false
+          description: Time window in minutes / Janela de tempo em minutos
+      responses:
+        '200':
+          description: Health overview fetched / Visão geral obtida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthOverviewOutput'
+        '400':
+          description: Invalid query parameter / Parâmetro de query inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid access token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ward/api/v1/health/routes:
+    get:
+      tags: [Health]
+      summary: Route-level health from logs / Health por rota baseado em logs
+      description: |
+        **EN:** Returns route-level health metrics (error rates, latency and throughput) computed from logs.
+        Supports `window_minutes` and `limit` query params.
+
+        **PT-BR:** Retorna métricas de health por rota (taxa de erro, latência e throughput) calculadas a partir dos logs.
+        Suporta parâmetros `window_minutes` e `limit`.
+      security:
+        - accessTokenCookie: []
+      parameters:
+        - in: query
+          name: window_minutes
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1440
+          required: false
+          description: Time window in minutes / Janela de tempo em minutos
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          required: false
+          description: Maximum number of routes / Número máximo de rotas
+      responses:
+        '200':
+          description: Route health list fetched / Lista de health por rota obtida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRoutesOutput'
+        '400':
+          description: Invalid query parameter / Parâmetro de query inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/invalid access token / Token ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Internal error / Erro interno
           content:
             application/json:
               schema:

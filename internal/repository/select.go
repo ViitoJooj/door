@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/ViitoJooj/ward/internal/domain"
 	"github.com/ViitoJooj/ward/pkg/initializer"
@@ -359,6 +360,51 @@ func (r *SQLite) ListRequestLogs() ([]*domain.RequestLog, error) {
 			return nil, err
 		}
 
+		logs = append(logs, entry)
+	}
+
+	return logs, rows.Err()
+}
+
+func (r *SQLite) ListRequestLogsSince(since time.Time, limit int) ([]*domain.RequestLog, error) {
+	if limit <= 0 {
+		limit = 5000
+	}
+
+	rows, err := r.db.Query(`
+		SELECT id, method, path, query_string, status_code, response_time_ms, ip, country, user_agent, referer, request_size, response_size, internal, created_at
+		FROM request_logs
+		WHERE datetime(created_at) >= datetime(?)
+		ORDER BY created_at DESC
+		LIMIT ?
+	`, since.UTC().Format("2006-01-02 15:04:05"), limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	logs := make([]*domain.RequestLog, 0)
+
+	for rows.Next() {
+		entry := &domain.RequestLog{}
+		if err := rows.Scan(
+			&entry.ID,
+			&entry.Method,
+			&entry.Path,
+			&entry.QueryString,
+			&entry.StatusCode,
+			&entry.ResponseTimeMs,
+			&entry.IP,
+			&entry.Country,
+			&entry.UserAgent,
+			&entry.Referer,
+			&entry.RequestSize,
+			&entry.ResponseSize,
+			&entry.Internal,
+			&entry.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
 		logs = append(logs, entry)
 	}
 

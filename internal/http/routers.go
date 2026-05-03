@@ -44,7 +44,7 @@ func RegisterCorsOriginsRouters(r *router.Router, corsController *handler.CorsHa
 	r.GET("/ward/api/v1/cors/{path:*}", middlewares.UserIdMiddleware(corsController.GetByID))
 	r.GET("/ward/api/v1/cors/", middlewares.UserIdMiddleware(corsController.GetAll))
 	r.POST("/ward/api/v1/cors/", middlewares.UserIdMiddleware(corsController.Create))
-	r.PUT("/ward/api/v1/cors/", middlewares.UserIdMiddleware(corsController.Update))
+	r.PUT("/ward/api/v1/cors/{path:*}", middlewares.UserIdMiddleware(corsController.Update))
 	r.DELETE("/ward/api/v1/cors/{path:*}", middlewares.UserIdMiddleware(corsController.DeleteById))
 }
 
@@ -91,6 +91,17 @@ func RegisterProtocolSettingsRouters(r *router.Router, protocolHandler *handler.
 
 	r.GET("/ward/api/v1/protocol-mode", adminOnly(protocolHandler.Get))
 	r.PUT("/ward/api/v1/protocol-mode", adminOnly(protocolHandler.Update))
+}
+
+func RegisterRouteRuleRouters(r *router.Router, routeRuleHandler *handler.RouteRuleHandler) {
+	adminOnly := func(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+		return middlewares.UserIdMiddleware(middlewares.AdminOnlyMiddleware(next))
+	}
+
+	r.GET("/ward/api/v1/route-rules", adminOnly(routeRuleHandler.GetAll))
+	r.POST("/ward/api/v1/route-rules", adminOnly(routeRuleHandler.Create))
+	r.PUT("/ward/api/v1/route-rules/{path:*}", adminOnly(routeRuleHandler.Update))
+	r.DELETE("/ward/api/v1/route-rules/{path:*}", adminOnly(routeRuleHandler.Delete))
 }
 
 func RegisterSpecialRouteRouters(r *router.Router, specialRouteHandler *handler.SpecialRouteHandler) {

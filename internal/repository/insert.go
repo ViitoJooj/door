@@ -53,8 +53,8 @@ func (r *SQLite) InsertRequestLog(log *domain.RequestLog) error {
 }
 
 func (r *SQLite) CreateCors(cors *domain.Cors) error {
-	_, err := r.db.Exec(`INSERT INTO cors (name, origin) VALUES (?, ?)`,
-		cors.Name, cors.Origin)
+	_, err := r.db.Exec(`INSERT INTO cors (origin) VALUES (?)`,
+		cors.Origin)
 	return err
 }
 
@@ -112,6 +112,42 @@ func (r *SQLite) CreateBlacklistedIP(entry *domain.IPAccessEntry) error {
 		&entry.CreatedAt,
 		&entry.UpdatedAt,
 	)
+}
+
+func (r *SQLite) CreateRouteRule(rule *domain.RouteRule) error {
+	rateLimitEnabled := 0
+	if rule.RateLimitEnabled {
+		rateLimitEnabled = 1
+	}
+	geoEnabled := 0
+	if rule.GeoRoutingEnabled {
+		geoEnabled = 1
+	}
+	enabled := 0
+	if rule.Enabled {
+		enabled = 1
+	}
+
+	res, err := r.db.Exec(`
+		INSERT INTO route_rules (path, method, rate_limit_enabled, rate_limit_rps, rate_limit_burst, target_url, geo_routing_enabled, enabled, created_by, updated_by)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, rule.Path, rule.Method, rateLimitEnabled, rule.RateLimitRPS, rule.RateLimitBurst, rule.TargetURL, geoEnabled, enabled, rule.CreatedBy, rule.UpdatedBy)
+	if err != nil {
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	created, err := r.FindRouteRuleByID(int(id))
+	if err != nil {
+		return err
+	}
+	if created == nil {
+		return sql.ErrNoRows
+	}
+	*rule = *created
+	return nil
 }
 
 func (r *SQLite) CreateSpecialRouteRule(rule *domain.SpecialRouteRule) error {

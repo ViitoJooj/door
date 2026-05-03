@@ -204,6 +204,37 @@ func (r *SQLite) UpsertProtocolSettings(settings *domain.ProtocolSettings) error
 	return err
 }
 
+func (r *SQLite) UpdateRouteRule(rule *domain.RouteRule) error {
+	rle := 0
+	if rule.RateLimitEnabled {
+		rle = 1
+	}
+	geo := 0
+	if rule.GeoRoutingEnabled {
+		geo = 1
+	}
+	en := 0
+	if rule.Enabled {
+		en = 1
+	}
+	_, err := r.db.Exec(`
+		UPDATE route_rules SET path=?, method=?, rate_limit_enabled=?, rate_limit_rps=?, rate_limit_burst=?, target_url=?, geo_routing_enabled=?, enabled=?, updated_by=?, updated_at=CURRENT_TIMESTAMP
+		WHERE id=?
+	`, rule.Path, rule.Method, rle, rule.RateLimitRPS, rule.RateLimitBurst, rule.TargetURL, geo, en, rule.UpdatedBy, rule.ID)
+	if err != nil {
+		return err
+	}
+	updated, err := r.FindRouteRuleByID(rule.ID)
+	if err != nil {
+		return err
+	}
+	if updated == nil {
+		return sql.ErrNoRows
+	}
+	*rule = *updated
+	return nil
+}
+
 func (r *SQLite) UpdateSpecialRouteRule(rule *domain.SpecialRouteRule) error {
 	enabledInt := 0
 	if rule.Enabled {

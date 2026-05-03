@@ -28,7 +28,7 @@ func main() {
 	router := router.New()
 
 	logger := logger.NewLogger(os.Stdout)
-	envRepo, authRepo, applicationRepo, logRepo, corsRepo, rateLimitRepo, ipAccessListRepo, protocolSettingsRepo, specialRouteRepo := repository.NewSQLiteRepository(database.DB)
+	envRepo, authRepo, applicationRepo, logRepo, corsRepo, rateLimitRepo, ipAccessListRepo, protocolSettingsRepo, specialRouteRepo, routeRuleRepo := repository.NewSQLiteRepository(database.DB)
 
 	//Cors router
 	corsService := services.NewCorsService(corsRepo, authRepo)
@@ -78,6 +78,10 @@ func main() {
 	specialRouteService := services.NewSpecialRouteService(specialRouteRepo, authRepo)
 	specialRouteHandler := handler.NewSpecialRouteHandler(specialRouteService)
 
+	//Route rules
+	routeRuleService := services.NewRouteRuleService(routeRuleRepo)
+	routeRuleHandler := handler.NewRouteRuleHandler(routeRuleService)
+
 	//Routers
 	httpx.RegisterEnvRouters(router, envHandler)
 	httpx.RegisterAuthRoutes(router, authHandler)
@@ -90,6 +94,7 @@ func main() {
 	httpx.RegisterIPAccessListRouters(router, ipAccessListHandler)
 	httpx.RegisterProtocolSettingsRouters(router, protocolSettingsHandler)
 	httpx.RegisterSpecialRouteRouters(router, specialRouteHandler)
+	httpx.RegisterRouteRuleRouters(router, routeRuleHandler)
 	httpx.RegisterProxyRoutes(router, proxyHandler)
 
 	rateLimitSettings, err := rateLimitService.Get()
@@ -108,18 +113,20 @@ func main() {
 	}
 
 	middlewares.LoadSpecialRoutesFromDB()
+	middlewares.LoadRouteRulesFromDB()
 
 	//Middelwares
 	handlerWithLog := middlewares.RequestLoggerMiddleware(router.Handler, logRepo)
-	handlerWithCors := middlewares.CorsMiddleware(handlerWithLog)
-	handlerWithProtocolMode := middlewares.ProtocolModeMiddleware(handlerWithCors)
+	handlerWithProtocolMode := middlewares.ProtocolModeMiddleware(handlerWithLog)
 	handlerWithSpecialRoutes := middlewares.SpecialRoutesMiddleware(handlerWithProtocolMode)
-	handlerWithRateLimit := middlewares.RateLimitMiddleware(handlerWithSpecialRoutes)
+	handlerWithRouteRateLimit := middlewares.RouteRuleRateLimitMiddleware(handlerWithSpecialRoutes)
+	handlerWithRateLimit := middlewares.RateLimitMiddleware(handlerWithRouteRateLimit)
+	handlerWithCors := middlewares.CorsMiddleware(handlerWithRateLimit)
 
 	port := initializer.EnsureAppPort(database.DB)
 	os.Setenv("APP_PORT", strconv.Itoa(port))
 	address := fmt.Sprintf(":%d", port)
 
 	log.Printf("Ward running on port: %d", port)
-	fasthttp.ListenAndServe(address, handlerWithRateLimit)
+	fasthttp.ListenAndServe(address, handlerWithCors)
 }

@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
@@ -39,19 +39,19 @@ func hasProtocolApplyScopeColumn(db *sql.DB) bool {
 func Conn() {
 	var err error
 
-	DB, err = sql.Open("sqlite3", "./database.db")
+	DB, err = sql.Open("sqlite", "./database.db")
 	if err != nil {
 		panic(err)
 	}
 
-	driver, err := sqlite3.WithInstance(DB, &sqlite3.Config{})
+	driver, err := sqlite.WithInstance(DB, &sqlite.Config{})
 	if err != nil {
 		panic(err)
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://db/migrations",
-		"sqlite3", driver,
+		"sqlite", driver,
 	)
 	if err != nil {
 		panic(err)

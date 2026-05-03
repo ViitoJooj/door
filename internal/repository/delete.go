@@ -37,3 +37,8 @@ func (r *SQLite) DeleteSpecialRouteRule(id int) error {
 	_, err := r.db.Exec(`DELETE FROM special_route_rules WHERE id = ?`, id)
 	return err
 }
+
+func (r *SQLite) DeleteRouteRule(id int) error {
+	_, err := r.db.Exec(`DELETE FROM route_rules WHERE id = ?`, id)
+	return err
+}

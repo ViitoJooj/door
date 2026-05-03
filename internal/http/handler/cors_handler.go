@@ -9,6 +9,7 @@ import (
 	"github.com/ViitoJooj/ward/internal/domain"
 	"github.com/ViitoJooj/ward/internal/http/dtos"
 	dto_utils "github.com/ViitoJooj/ward/internal/http/dtos/utils"
+	"github.com/ViitoJooj/ward/internal/http/middlewares"
 	"github.com/ViitoJooj/ward/internal/services"
 	"github.com/valyala/fasthttp"
 )
@@ -80,6 +81,8 @@ func (h *CorsHandler) Create(ctx *fasthttp.RequestCtx) {
 		ctx.SetBody(res)
 		return
 	}
+
+	middlewares.LoadCorsFromDB()
 
 	output := dtos.CorsOutput{
 		Success: true,
@@ -251,6 +254,8 @@ func (h *CorsHandler) Update(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	middlewares.LoadCorsFromDB()
+
 	output := dtos.CorsOutput{
 		Success: true,
 		Message: "cors updated.",
@@ -332,6 +337,8 @@ func (h *CorsHandler) DeleteById(ctx *fasthttp.RequestCtx) {
 		ctx.SetBody(res)
 		return
 	}
+
+	middlewares.LoadCorsFromDB()
 
 	output := dtos.CorsOutput{
 		Success: true,

@@ -27,12 +27,10 @@ type SpecialRouteRule struct {
 
 func NormalizeSpecialRouteType(routeType string) (string, error) {
 	value := strings.ToLower(strings.TrimSpace(routeType))
-	switch value {
-	case SpecialRouteTypeLogin, SpecialRouteTypeRegister:
-		return value, nil
-	default:
-		return "", errors.New("route_type must be one of: login, register")
+	if value == "" {
+		return "", errors.New("route_type is required")
 	}
+	return value, nil
 }
 
 func NormalizeSpecialRoutePath(path string) (string, error) {

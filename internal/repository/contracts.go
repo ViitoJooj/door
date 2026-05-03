@@ -11,9 +11,9 @@ type SQLite struct {
 	db *sql.DB
 }
 
-func NewSQLiteRepository(db *sql.DB) (DotEnvRepository, UserRepository, ApplicationRepository, RequestLogRepository, CorsRepository, RateLimitRepository, IPAccessListRepository, ProtocolSettingsRepository, SpecialRouteRepository) {
+func NewSQLiteRepository(db *sql.DB) (DotEnvRepository, UserRepository, ApplicationRepository, RequestLogRepository, CorsRepository, RateLimitRepository, IPAccessListRepository, ProtocolSettingsRepository, SpecialRouteRepository, RouteRuleRepository) {
 	repo := &SQLite{db: db}
-	return repo, repo, repo, repo, repo, repo, repo, repo, repo
+	return repo, repo, repo, repo, repo, repo, repo, repo, repo, repo
 }
 
 type UserRepository interface {
@@ -88,4 +88,13 @@ type SpecialRouteRepository interface {
 	CreateSpecialRouteRule(*domain.SpecialRouteRule) error
 	UpdateSpecialRouteRule(*domain.SpecialRouteRule) error
 	DeleteSpecialRouteRule(id int) error
+}
+
+type RouteRuleRepository interface {
+	ListRouteRules() ([]*domain.RouteRule, error)
+	FindRouteRuleByID(id int) (*domain.RouteRule, error)
+	FindRouteRuleByPath(path, method string) (*domain.RouteRule, error)
+	CreateRouteRule(*domain.RouteRule) error
+	UpdateRouteRule(*domain.RouteRule) error
+	DeleteRouteRule(id int) error
 }

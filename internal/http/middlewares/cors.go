@@ -54,10 +54,16 @@ func CorsMiddleware(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		if allowed {
 			ctx.Response.Header.Set("Access-Control-Allow-Origin", origin)
 			ctx.Response.Header.Set("Vary", "Origin")
-			ctx.Response.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			ctx.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			ctx.Response.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 			ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 			ctx.Response.Header.Set("Access-Control-Max-Age", "3600")
+
+			requestedHeaders := string(ctx.Request.Header.Peek("Access-Control-Request-Headers"))
+			if requestedHeaders != "" {
+				ctx.Response.Header.Set("Access-Control-Allow-Headers", requestedHeaders)
+			} else {
+				ctx.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			}
 		}
 
 		if string(ctx.Method()) == "OPTIONS" {

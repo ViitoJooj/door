@@ -42,20 +42,14 @@ func UpdateConfigApplyScope(scope string) {
 	protocolModeMu.Unlock()
 }
 
-func currentConfigApplyScope() string {
-	protocolModeMu.RLock()
-	defer protocolModeMu.RUnlock()
-	return configApplyScope
-}
-
 func ShouldApplySecurityConfigs(ctx *fasthttp.RequestCtx) bool {
-	scope := currentConfigApplyScope()
-	if scope == domain.ConfigScopeAll {
-		return true
+	// Ward's own management API must never be subject to proxy security policies
+	path := string(ctx.Path())
+	if strings.HasPrefix(path, "/ward/api/") {
+		return false
 	}
 
-	path := string(ctx.Path())
-	return !strings.HasPrefix(path, "/ward/api/")
+	return true
 }
 
 func requestIsHTTPS(ctx *fasthttp.RequestCtx) bool {

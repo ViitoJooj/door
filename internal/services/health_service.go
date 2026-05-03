@@ -59,7 +59,7 @@ func (s *HealthService) GetOverview(windowMinutes int) (*domain.HealthOverview, 
 
 		if entry.StatusCode >= 500 {
 			overview.ServerErrors++
-		} else if entry.StatusCode >= 400 {
+		} else if entry.StatusCode >= 400 && entry.StatusCode != 404 && entry.StatusCode != 429 {
 			overview.ClientErrors++
 		}
 
@@ -110,6 +110,10 @@ func (s *HealthService) GetRouteStats(windowMinutes int, limit int) ([]*domain.H
 		if ignoreHealthPath(entry.Path) {
 			continue
 		}
+		// Skip 404 routes entirely — they're usually bots probing non-existent paths
+		if entry.StatusCode == 404 {
+			continue
+		}
 		key := strings.ToUpper(entry.Method) + "|" + entry.Path
 		acc, ok := byRoute[key]
 		if !ok {
@@ -126,7 +130,8 @@ func (s *HealthService) GetRouteStats(windowMinutes int, limit int) ([]*domain.H
 		acc.latencies = append(acc.latencies, entry.ResponseTimeMs)
 		if entry.StatusCode >= 500 {
 			acc.serverErrors++
-		} else if entry.StatusCode >= 400 {
+		} else if entry.StatusCode >= 400 && entry.StatusCode != 429 {
+			// 429 is a rate-limit response — expected behavior, not an application error
 			acc.clientErrors++
 		}
 		if entry.CreatedAt.After(acc.lastSeen) {

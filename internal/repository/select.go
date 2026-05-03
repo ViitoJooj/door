@@ -631,6 +631,69 @@ func (r *SQLite) ListSpecialRouteRules(routeType string) ([]*domain.SpecialRoute
 	return rules, rows.Err()
 }
 
+func (r *SQLite) ListRouteRules() ([]*domain.RouteRule, error) {
+	rows, err := r.db.Query(`
+		SELECT id, path, method, rate_limit_enabled, rate_limit_rps, rate_limit_burst, target_url, geo_routing_enabled, enabled, created_by, updated_by, created_at, updated_at
+		FROM route_rules ORDER BY id DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	rules := make([]*domain.RouteRule, 0)
+	for rows.Next() {
+		r2 := &domain.RouteRule{}
+		var rle, geo, en int
+		if err := rows.Scan(&r2.ID, &r2.Path, &r2.Method, &rle, &r2.RateLimitRPS, &r2.RateLimitBurst, &r2.TargetURL, &geo, &en, &r2.CreatedBy, &r2.UpdatedBy, &r2.CreatedAt, &r2.UpdatedAt); err != nil {
+			return nil, err
+		}
+		r2.RateLimitEnabled = rle == 1
+		r2.GeoRoutingEnabled = geo == 1
+		r2.Enabled = en == 1
+		rules = append(rules, r2)
+	}
+	return rules, rows.Err()
+}
+
+func (r *SQLite) FindRouteRuleByID(id int) (*domain.RouteRule, error) {
+	rule := &domain.RouteRule{}
+	var rle, geo, en int
+	err := r.db.QueryRow(`
+		SELECT id, path, method, rate_limit_enabled, rate_limit_rps, rate_limit_burst, target_url, geo_routing_enabled, enabled, created_by, updated_by, created_at, updated_at
+		FROM route_rules WHERE id = ?
+	`, id).Scan(&rule.ID, &rule.Path, &rule.Method, &rle, &rule.RateLimitRPS, &rule.RateLimitBurst, &rule.TargetURL, &geo, &en, &rule.CreatedBy, &rule.UpdatedBy, &rule.CreatedAt, &rule.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	rule.RateLimitEnabled = rle == 1
+	rule.GeoRoutingEnabled = geo == 1
+	rule.Enabled = en == 1
+	return rule, nil
+}
+
+func (r *SQLite) FindRouteRuleByPath(path, method string) (*domain.RouteRule, error) {
+	rule := &domain.RouteRule{}
+	var rle, geo, en int
+	err := r.db.QueryRow(`
+		SELECT id, path, method, rate_limit_enabled, rate_limit_rps, rate_limit_burst, target_url, geo_routing_enabled, enabled, created_by, updated_by, created_at, updated_at
+		FROM route_rules WHERE path = ? AND method = ? AND enabled = 1
+	`, path, method).Scan(&rule.ID, &rule.Path, &rule.Method, &rle, &rule.RateLimitRPS, &rule.RateLimitBurst, &rule.TargetURL, &geo, &en, &rule.CreatedBy, &rule.UpdatedBy, &rule.CreatedAt, &rule.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	rule.RateLimitEnabled = rle == 1
+	rule.GeoRoutingEnabled = geo == 1
+	rule.Enabled = en == 1
+	return rule, nil
+}
+
 func (r *SQLite) FindSpecialRouteRuleByID(id int) (*domain.SpecialRouteRule, error) {
 	rule := &domain.SpecialRouteRule{}
 	var enabledInt int
